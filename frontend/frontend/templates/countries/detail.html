@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Country Details - Economic Intelligence Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div id="country-header" class="mb-4">
+        <!-- Country flag, name, basic info will be loaded here by JS -->
+        <h2><span id="country-name-placeholder">Country Name</span> <span id="country-flag-placeholder"></span></h2>
+        <p><strong>Code:</strong> <span id="country-code-placeholder">N/A</span></p>
+        <p><strong>Continent:</strong> <span id="country-continent-placeholder">N/A</span></p>
+        <p><strong>Population:</strong> <span id="country-population-placeholder">N/A</span></p>
+        <p><strong>Happiness Score (Latest):</strong> <span id="country-happiness-placeholder">N/A</span></p>
+    </div>
+
+    <div id="economic-dashboard" class="mb-4">
+        <h3>Economic Indicators</h3>
+        <div id="indicator-charts">
+            <!-- Charts for historical inflation, happiness score evolution etc. will be rendered here -->
+        </div>
+        <div id="indicator-table">
+            <!-- Summary table of economic indicators -->
+        </div>
+    </div>
+
+    <div id="comparative-analysis">
+        <h3>Comparative Analysis</h3>
+        <!-- Placeholder for comparisons -->
+        <p>Comparative analysis features will be implemented later.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const pathParts = window.location.pathname.split('/');
+            // Assuming URL structure /X/Y/countries/COUNTRY_NAME/
+            // Find "countries", then take the next part as countryName.
+            // This is more robust than just taking the second to last part.
+            let countryName = '';
+            const countriesIndex = pathParts.indexOf('countries');
+            if (countriesIndex !== -1 && countriesIndex < pathParts.length -1) {
+                countryName = pathParts[countriesIndex + 1];
+            }
+
+            if (!countryName) {
+                console.error('Country name not found in URL.');
+                document.getElementById('country-name-placeholder').textContent = 'Error: Country not specified in URL.';
+                return;
+            }
+
+            // Update header immediately with the name from URL
+            const countryNamePlaceholder = document.getElementById('country-name-placeholder');
+            if (countryNamePlaceholder) countryNamePlaceholder.textContent = decodeURIComponent(countryName);
+
+            const apiUrl = `/api/analytics/country-detail/${encodeURIComponent(countryName)}/`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    let errorMsg = `Error fetching data: ${response.status} ${response.statusText}`;
+                    if (errorData && errorData.error) {
+                        errorMsg = errorData.error;
+                    }
+                    console.error(errorMsg);
+                    const header = document.getElementById('country-header');
+                    if (header) {
+                        header.innerHTML = `<h2 class='text-danger'>Could not load data for ${decodeURIComponent(countryName)}</h2><p>${errorMsg}</p>`;
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+
+                // Populate Country Info Header
+                if (data.country_info) {
+                    document.getElementById('country-name-placeholder').textContent = data.country_info.name || decodeURIComponent(countryName);
+                    // document.getElementById('country-flag-placeholder').textContent = ''; // Add flag if available
+                    document.getElementById('country-code-placeholder').textContent = data.country_info.code || 'N/A';
+                    document.getElementById('country-continent-placeholder').textContent = data.country_info.continent || 'N/A';
+                    document.getElementById('country-population-placeholder').textContent = data.country_info.population ? data.country_info.population.toLocaleString() : 'N/A';
+
+                    // Find latest happiness score from indicators for the header
+                    let latestHappiness = 'N/A';
+                    if (data.economic_indicators && data.economic_indicators.length > 0) {
+                        const sortedIndicators = [...data.economic_indicators].sort((a, b) => b.year - a.year);
+                        const latestWithHappiness = sortedIndicators.find(ind => ind.happiness_score !== null && ind.happiness_score !== undefined);
+                        if (latestWithHappiness) {
+                            latestHappiness = latestWithHappiness.happiness_score.toFixed(2);
+                        }
+                    }
+                    document.getElementById('country-happiness-placeholder').textContent = latestHappiness;
+                } else {
+                     document.getElementById('country-header').innerHTML = `<h2 class='text-warning'>Basic country info not available.</h2>`;
+                }
+
+
+                // Populate Economic Indicators Table
+                const indicatorTableDiv = document.getElementById('indicator-table');
+                if (data.economic_indicators && data.economic_indicators.length > 0) {
+                    let tableHtml = `
+                        <h4 class="mt-4">Historical Data</h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Happiness</th>
+                                    <th>GDP/Capita</th>
+                                    <th>Headline Inflation (%)</th>
+                                    <th>Food Inflation (%)</th>
+                                    <th>Energy Inflation (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                    // Sort by year descending for display
+                    const sortedIndicators = [...data.economic_indicators].sort((a, b) => b.year - a.year);
+
+                    sortedIndicators.forEach(ind => {
+                        tableHtml += `
+                            <tr>
+                                <td>${ind.year}</td>
+                                <td>${ind.happiness_score !== null ? ind.happiness_score.toFixed(2) : 'N/A'}</td>
+                                <td>${ind.gdp_per_capita !== null ? Math.round(ind.gdp_per_capita).toLocaleString() : 'N/A'}</td>
+                                <td>${ind.headline_consumer_price_inflation !== null ? ind.headline_consumer_price_inflation.toFixed(2) : 'N/A'}</td>
+                                <td>${ind.food_consumer_price_inflation !== null ? ind.food_consumer_price_inflation.toFixed(2) : 'N/A'}</td>
+                                <td>${ind.energy_consumer_price_inflation !== null ? ind.energy_consumer_price_inflation.toFixed(2) : 'N/A'}</td>
+                            </tr>`;
+                    });
+                    tableHtml += `</tbody></table>`;
+                    indicatorTableDiv.innerHTML = tableHtml;
+
+                    // Optional: Render a simple happiness score over time chart
+                    const indicatorChartsDiv = document.getElementById('indicator-charts');
+                    if (indicatorChartsDiv && typeof Chart !== 'undefined') {
+                        const chartCanvas = document.createElement('canvas');
+                        chartCanvas.id = 'happinessOverTimeChart';
+                        indicatorChartsDiv.innerHTML = '<h5>Happiness Score Over Time</h5>'; // Clear previous and add title
+                        indicatorChartsDiv.appendChild(chartCanvas);
+
+                        const years = data.economic_indicators.map(ind => ind.year).sort((a,b) => a-b);
+                        const happinessScores = data.economic_indicators
+                                                .sort((a,b) => a.year - b.year)
+                                                .map(ind => ind.happiness_score);
+
+                        new Chart(chartCanvas, {
+                            type: 'line',
+                            data: {
+                                labels: years,
+                                datasets: [{
+                                    label: 'Happiness Score',
+                                    data: happinessScores,
+                                    borderColor: 'rgba(25, 135, 84, 1)', // Bootstrap success green
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { beginAtZero: false, title: { display: true, text: 'Score'} },
+                                    x: { title: { display: true, text: 'Year'} }
+                                }
+                            }
+                        });
+                    }
+
+                } else if (data.error) { // API returned 200 OK but with an error message in body
+                     indicatorTableDiv.innerHTML = `<p class="text-warning">${data.error}</p>`;
+                }
+                else {
+                    indicatorTableDiv.innerHTML = '<p>No detailed economic indicators available for this country.</p>';
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch or process country detail data:', error);
+                const header = document.getElementById('country-header');
+                 if (header) {
+                    header.innerHTML = `<h2 class='text-danger'>Could not load data for ${decodeURIComponent(countryName)}</h2><p>An error occurred while fetching data. Please try again later.</p>`;
+                }
+            }
+        });
+    </script>
+    {% endblock extra_js %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - Economic Intelligence Platform{% endblock %}
 
@@ -251,4 +252,53 @@
                                                 <label class="form-label">Country 1:</label>
                                                 <select class="form-select" id="country1Select">
                                                     <option value="tunisia">Tunisia</option>
-                                              
+                                                </select> <!-- Assuming the select was incomplete, closing it -->
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Country 2:</label>
+                                                <select class="form-select" id="country2Select">
+                                                    <option value="algeria">Algeria</option> <!-- Example -->
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4 d-flex align-items-end">
+                                                <button class="btn btn-primary-custom btn-custom w-100">
+                                                    <i class="fas fa-exchange-alt me-2"></i>Compare
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="comparisonResult">
+                                            <!-- Comparison charts and tables will appear here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize EconomicCharts
+        const economicCharts = new EconomicCharts();
+        economicCharts.initWorldMap('worldMap'); // ID of the map container in this file
+        economicCharts.initInflationTrends('inflationChart'); // ID of the inflation chart canvas in this file
+        // The correlation chart (happinessGdpChart) will be initialized if its placeholder init is in charts.js
+        economicCharts.initCorrelationChart('happinessGdpChart'); // ID of the happiness/GDP chart canvas in this file
+
+        // Initialize CountrySearch
+        // Ensure the IDs 'countrySearch' and 'searchResults' match your HTML in this file
+        const countrySearch = new CountrySearch('countrySearch', 'searchResults');
+        countrySearch.initSearch();
+
+        console.log('Dashboard charts and search initialized.');
+    });
+</script>
+{% endblock %}

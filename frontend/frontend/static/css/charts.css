@@ -1,0 +1,127 @@
+/* frontend/static/css/charts.css */
+
+/*
+   Define root variables for colors.
+   These are from the issue spec. They can be used by JavaScript to apply consistent
+   theming to charts if Chart.js options for colors are set to use CSS variables.
+   Alternatively, JS can directly use these hex values.
+   For CSS to use them, they need to be defined here or in a more global scope like base.html's style.
+*/
+:root {
+    --chart-primary: #2563eb;     /* Professional blue */
+    --chart-secondary: #4b5563;   /* Neutral gray for accents, if needed */
+    --chart-success: #10b981;     /* Positive indicators */
+    --chart-warning: #f59e0b;     /* Neutral/warning indicators */
+    --chart-danger: #ef4444;      /* Negative indicators */
+    --chart-text-primary: #1e293b;    /* Primary text for labels/titles */
+    --chart-text-secondary: #6b7280; /* Secondary text for less emphasis */
+    --chart-grid-color: #e5e7eb;  /* Light grid lines */
+}
+
+/* General chart canvas styling */
+canvas {
+    max-width: 100%; /* Ensure canvas is responsive within its container */
+    height: auto;    /* Maintain aspect ratio by default */
+}
+
+/*
+   Specific chart containers/canvases.
+   These IDs correspond to canvas elements in dashboard/main.html and countries/detail.html.
+*/
+#inflationChart,
+#happinessGdpChart, /* Also used for PCA Bar Chart in dashboard */
+#laborChart,
+#realEstateChart,
+#infrastructureChart,
+#happinessOverTimeChart { /* From country_detail.html */
+    min-height: 280px;   /* Minimum height to ensure visibility */
+    max-height: 350px;   /* Max height for dashboard/detail view consistency */
+    width: 100% !important; /* Ensure it takes full width of its parent container */
+}
+
+/*
+   Styling for the PCA Bar Chart (using #happinessGdpChart ID as per current setup).
+   If Chart.js options for colors (backgroundColor, borderColor) in JS are set dynamically
+   or use explicit hex values, these CSS rules might be overridden or serve as fallback.
+*/
+#happinessGdpChart {
+    /* Example: Add a subtle border if not handled by Chart.js options or .chart-container */
+    /* border: 1px solid var(--chart-grid-color, #e5e7eb); */
+}
+
+/*
+   Styles for PCA Loadings and Insights Display (if these elements are added to templates)
+   These were in the original charts.css, kept for potential use.
+*/
+.pca-insights-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9fafb; /* Lighter than body bg */
+    border-left: 4px solid var(--chart-primary, #2563eb); /* Accent border */
+    border-radius: 0.25rem;
+}
+
+.pca-insights-container h5 {
+    font-size: 1.1rem; /* Slightly larger */
+    color: var(--chart-text-primary, #1e293b);
+    margin-bottom: 12px;
+}
+
+.pca-insights-container ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.pca-insights-container ul li {
+    font-size: 0.95rem; /* Slightly larger */
+    margin-bottom: 6px;
+    color: var(--chart-text-secondary, #6b7280);
+}
+
+.pca-loadings-table {
+    width: 100%;
+    margin-top: 20px; /* More spacing */
+    border-collapse: collapse;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.pca-loadings-table th,
+.pca-loadings-table td {
+    border: 1px solid var(--chart-grid-color, #e5e7eb);
+    padding: 10px 12px; /* More padding */
+    text-align: left;
+    font-size: 0.9rem; /* Slightly larger */
+    color: var(--chart-text-primary, #1e293b);
+}
+
+.pca-loadings-table th {
+    background-color: #f3f4f6; /* Lighter header */
+    font-weight: 600; /* Semibold */
+    color: var(--chart-text-primary, #1e293b);
+}
+
+/*
+   General styles from original charts.css - assess if needed or covered by .chart-container
+   .chart-canvas and .analytics-chart-item might be redundant if structure is consistent.
+*/
+.chart-canvas { /* This was in original, might be too generic if canvas parent sets size */
+    /* width: 100% !important; */ /* Already set above for specific IDs */
+    /* height: 300px; */ /* Specific IDs have min/max height */
+    /* max-height: 400px; */
+}
+
+.analytics-chart-item { /* This was a general wrapper, .chart-container from dashboard.css is similar */
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 0.375rem; /* Match Bootstrap's default */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.075); /* Match .card-custom */
+    margin-bottom: 20px;
+}
+
+.analytics-chart-item h4 { /* Titles within .analytics-chart-item */
+    font-size: 1.15rem; /* Slightly larger */
+    margin-bottom: 15px;
+    color: var(--chart-text-primary, #1e293b);
+    text-align: center;
+}

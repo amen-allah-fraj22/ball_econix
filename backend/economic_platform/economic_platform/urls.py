@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
-    path('api/analytics/', include('analytics.urls')),
+    path('api/analytics/', include('analytics.urls', namespace='analytics_api')),
     path('api/countries/', include('countries.urls')),
     path('', include('authentication.urls')),  # For frontend templates
 ]

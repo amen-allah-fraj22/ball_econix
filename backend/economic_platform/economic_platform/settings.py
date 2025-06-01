@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'authentication',
     'analytics',
     'countries',
+    'tunisia',
     
 ]
 
@@ -133,6 +134,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'authentication.CustomUser' # Added to specify custom user model
 
 # CORS settings (allows frontend to communicate with backend)
 CORS_ALLOWED_ORIGINS = [

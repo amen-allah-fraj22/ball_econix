@@ -1,0 +1,6 @@
+Country,Year,Headline Consumer Price Inflation,Energy Consumer Price Inflation,Food Consumer Price Inflation,Official Core Consumer Price Inflation,Producer Price Inflation,GDP Deflator Index Growth Rate,Continent/Region,Score,GDP per Capita,Social Support,Healthy Life Expectancy at Birth,Freedom to Make Life Choices,Generosity,Perceptions of Corruption
+Testland,2020,2.5,1.0,3.0,2.0,1.5,2.2,Testople/Central,7.5,50000,0.95,75.0,0.9,0.2,0.5
+Utopia,2020,1.0,0.5,1.2,0.8,0.6,1.1,Dreamland/North,9.5,80000,0.99,85.0,0.98,0.3,0.1
+Testland,2021,3.0,1.5,3.5,2.5,2.0,2.7,Testople/Central,7.6,52000,0.96,75.5,0.91,0.21,0.48
+NoDataLand,2022,,,,,,,NoContinent,5.0,30000,0.80,60.0,0.7,0.1,0.7
+BadValueLand,2022,999,10,20,15,12,18,ErrorRegion,6.0,40000,0.85,65.0,0.75,0.15,0.6
