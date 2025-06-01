@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Economic Intelligence Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-custom">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Welcome Back</h2>
+                    <p class="text-muted">Sign in to your account</p>
+                </div>
+
+                <form method="post" id="loginForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2"></i>Email Address
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom btn-custom w-100 mb-3">
+                        <span class="loading-spinner spinner-border spinner-border-sm me-2" role="status"></span>
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="mb-0">Don't have an account? 
+                        <a href="{% url 'register' %}" class="text-primary">Sign up here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Data Banner -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info alert-custom">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Demo Access:</strong> Use any email and password to explore the platform, or register a new account.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const spinner = submitBtn.querySelector('.loading-spinner');
+    
+    // Show loading
+    spinner.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    
+    // Get form data
+    const formData = new FormData(this);
+    
+    // Submit form normally (you can also use AJAX here)
+    setTimeout(() => {
+        this.submit();
+    }, 500);
+});
+</script>
+{% endblock %}
