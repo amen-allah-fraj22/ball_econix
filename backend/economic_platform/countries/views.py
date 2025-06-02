@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view
 from django.db.models import Prefetch
 from .models import Country, EconomicIndicator
 from .serializers import CountryComparisonDataSerializer
@@ -54,3 +55,18 @@ class CountryComparisonAPIView(APIView):
             # but returning available data with notes is often more user-friendly.
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def list_all_countries_api(request):
+    """
+    API endpoint to list all countries with their ID, name, and code.
+    """
+    try:
+        countries = Country.objects.all().order_by('name')
+        # Manually construct the list of dictionaries
+        data = [{'id': country.id, 'name': country.name, 'code': country.code} for country in countries]
+        return Response(data, status=status.HTTP_200_OK)
+    except Exception as e:
+        # Consider logging the exception e
+        return Response({'error': 'An unexpected error occurred while fetching countries.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

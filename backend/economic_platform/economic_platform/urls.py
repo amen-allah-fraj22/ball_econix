@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/auth/', include('authentication.urls')),
     path('api/analytics/', include('analytics.urls', namespace='analytics_api')),
     path('api/countries/', include('countries.urls')),
+    path('api/tunisia/', include('tunisia.urls')), # Added Tunisia app URLs
     path('', include('authentication.urls')),  # For frontend templates
 ]
 

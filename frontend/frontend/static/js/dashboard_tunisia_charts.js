@@ -219,6 +219,65 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Tunisia map iframe container is present.");
     }
 
+    // Investment Advisor Logic
+    // Note: The getInvestmentRecommendation function needs to be available globally if called by an inline onclick
+    // If this script is included at the end of the body, it should be fine.
+    // Otherwise, explicitly attach it to window: window.getInvestmentRecommendation = async function() { ... }
+    // For now, assuming it's fine as a non-window function due to script placement or if the button's onclick is also set via JS.
+    // If the button is <button onclick="getInvestmentRecommendation()">, then this function MUST be global.
+    // To make it global from within this event listener, assign it to window.
+    window.getInvestmentRecommendation = async function() {
+        const sectorSelect = document.getElementById('sectorSelect');
+        const recommendationResultDiv = document.getElementById('recommendationResult');
+
+        if (!sectorSelect || !recommendationResultDiv) {
+            console.error('Sector select or recommendation result div not found.');
+            if (recommendationResultDiv) recommendationResultDiv.innerHTML = '<p class="text-danger">Error: UI elements missing.</p>';
+            return;
+        }
+
+        const selectedSector = sectorSelect.value;
+        recommendationResultDiv.innerHTML = '<p class="text-info">Loading recommendation...</p>';
+
+        try {
+            const response = await fetch(`/api/tunisia/investment-advisor/?sector=${selectedSector}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ detail: `HTTP error! status: ${response.status}` }));
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+            
+            const recommendations = await response.json();
+
+            if (recommendations.length === 0) {
+                recommendationResultDiv.innerHTML = '<p class="text-muted">No specific recommendations found for this sector. Consider general economic factors.</p>';
+                return;
+            }
+
+            let htmlResult = '<ul class="list-group">';
+            recommendations.forEach(rec => {
+                htmlResult += `
+                    <li class="list-group-item">
+                        <h5>${rec.governorate_name}</h5>
+                        <p><strong>Sector:</strong> ${rec.sector}</p>
+                        <p><strong>Overall Score:</strong> <span class="badge bg-primary">${rec.overall_score.toFixed(2)}</span></p>
+                        <p class="mb-1"><strong>Reasoning:</strong> ${rec.reasoning || 'N/A'}</p>
+                        <small class="text-muted">Labor: ${rec.labor_score.toFixed(2)}, Infra: ${rec.infrastructure_score.toFixed(2)}, Tax: ${rec.tax_incentive_score.toFixed(2)}, Market: ${rec.market_access_score.toFixed(2)}</small>
+                    </li>`;
+            });
+            htmlResult += '</ul>';
+            recommendationResultDiv.innerHTML = htmlResult;
+
+        } catch (error) {
+            console.error('Error fetching investment recommendation:', error);
+            recommendationResultDiv.innerHTML = `<p class="text-danger">Failed to load recommendations: ${error.message}</p>`;
+        }
+    }
+    // If the button is already in main.html with an onclick, the above function must be global.
+    // If we were to add the event listener programmatically:
+    // const getRecommendationButton = document.getElementById('getRecommendationButton'); // Assuming a button with this ID
+    // if (getRecommendationButton) {
+    //     getRecommendationButton.addEventListener('click', getInvestmentRecommendation);
+    // }
 });
 </script>
 {% endblock %}
