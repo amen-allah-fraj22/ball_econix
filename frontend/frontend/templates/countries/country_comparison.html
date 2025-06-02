@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Country Comparison Tool{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Country Comparison Tool</h1>
+    <p class="lead">Compare economic indicators for multiple countries side-by-side.</p>
+    <p>Enter comma-separated country names below (e.g., Tunisia, France, Germany).</p>
+
+    <form id="countryComparisonForm" class="mb-4">
+        <div class="input-group mb-3">
+            <input type="text" id="country-names-input" class="form-control" placeholder="Enter comma-separated country names" required>
+            <button type="submit" class="btn btn-primary">Compare Countries</button>
+        </div>
+    </form>
+
+    <div id="comparison-results-container">
+        <!-- API results will be displayed here -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('countryComparisonForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const countryNamesInput = document.getElementById('country-names-input').value.trim();
+        const resultsContainer = document.getElementById('comparison-results-container');
+
+        resultsContainer.innerHTML = '<p class="text-center">Loading...</p>'; // Show loading message
+
+        if (!countryNamesInput) {
+            resultsContainer.innerHTML = '<p class="alert alert-warning">Please enter at least one country name.</p>';
+            return;
+        }
+
+        const apiUrl = `/countries/api/compare/?countries=${encodeURIComponent(countryNamesInput)}`;
+
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; }); // Throw error object from API if possible
+                }
+                return response.json();
+            })
+            .then(data => {
+                resultsContainer.innerHTML = ''; // Clear loading message
+
+                if (data.notes && data.notes.length > 0) {
+                    const notesDiv = document.createElement('div');
+                    notesDiv.className = 'alert alert-warning';
+                    let notesHtml = '<strong>Notes:</strong><ul>';
+                    data.notes.forEach(note => {
+                        notesHtml += `<li>${note}</li>`;
+                    });
+                    notesHtml += '</ul>';
+                    notesDiv.innerHTML = notesHtml;
+                    resultsContainer.appendChild(notesDiv);
+                }
+
+                if (!data.comparison_data || data.comparison_data.length === 0) {
+                    if (!data.notes || data.notes.length === 0) { // Only show if no other message is present
+                         resultsContainer.innerHTML += '<p class="alert alert-info">No comparison data found for the entered countries.</p>';
+                    }
+                    return;
+                }
+
+                // Transpose data for table display (countries as columns, indicators as rows)
+                const countries = data.comparison_data;
+                const indicators = [
+                    { key: 'year', label: 'Year of Latest Data' },
+                    { key: 'happiness_score', label: 'Happiness Score' },
+                    { key: 'gdp_per_capita', label: 'GDP per Capita (USD)' },
+                    { key: 'headline_consumer_price_inflation', label: 'Headline Inflation (%)' },
+                    { key: 'energy_consumer_price_inflation', label: 'Energy Inflation (%)' },
+                    { key: 'food_consumer_price_inflation', label: 'Food Inflation (%)' },
+                    { key: 'official_core_consumer_price_inflation', label: 'Core Inflation (%)' },
+                    { key: 'producer_price_inflation', label: 'Producer Price Inflation (%)' },
+                    { key: 'gdp_deflator_index_growth_rate', label: 'GDP Deflator Growth (%)' },
+                    { key: 'social_support', label: 'Social Support' },
+                    { key: 'healthy_life_expectancy_at_birth', label: 'Healthy Life Expectancy (Years)' },
+                    { key: 'freedom_to_make_life_choices', label: 'Freedom to Make Life Choices' },
+                    { key: 'generosity', label: 'Generosity' },
+                    { key: 'perceptions_of_corruption', label: 'Perceptions of Corruption' }
+                ];
+
+                const table = document.createElement('table');
+                table.className = 'table table-striped table-hover table-responsive'; // Added table-responsive
+
+                // Table Header (Country Names)
+                const thead = document.createElement('thead');
+                let headerRowHtml = '<tr><th>Indicator</th>';
+                countries.forEach(country => {
+                    headerRowHtml += `<th>${country.name} (${country.code}) <br><small>${country.continent} - ${country.region} <br>Pop: ${country.population ? country.population.toLocaleString() : 'N/A'}</small></th>`;
+                });
+                headerRowHtml += '</tr>';
+                thead.innerHTML = headerRowHtml;
+                table.appendChild(thead);
+
+                // Table Body (Indicator Rows)
+                const tbody = document.createElement('tbody');
+                indicators.forEach(indicator => {
+                    let rowHtml = `<tr><td><strong>${indicator.label}</strong></td>`;
+                    countries.forEach(country => {
+                        const value = country.latest_indicators ? country.latest_indicators[indicator.key] : 'N/A';
+                        rowHtml += `<td>${value !== null && value !== undefined ? (typeof value === 'number' ? value.toFixed(2) : value) : 'N/A'}</td>`;
+                    });
+                    rowHtml += '</tr>';
+                    tbody.innerHTML += rowHtml;
+                });
+                table.appendChild(tbody);
+                resultsContainer.appendChild(table);
+
+            })
+            .catch(error => {
+                resultsContainer.innerHTML = ''; // Clear loading message
+                let errorMessage = '<p class="alert alert-danger">An error occurred while fetching data.';
+                if (error && error.error) { // Custom error from API
+                    errorMessage += ` Server said: ${error.error}`;
+                } else if (error && error.message) { // Standard JS error
+                    errorMessage += ` Details: ${error.message}`;
+                }
+                errorMessage += '</p>';
+                resultsContainer.innerHTML = errorMessage;
+                console.error('Error fetching country comparison data:', error);
+            });
+    });
+</script>
+{% endblock %}

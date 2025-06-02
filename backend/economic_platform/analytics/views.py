@@ -314,3 +314,17 @@ def world_map_view(request):
         'title': 'World Map'
     }
     return render(request, 'analytics/world_map.html', context)
+
+def investment_advisor_view(request):
+    """Renders the investment advisor page."""
+    context = {
+        'title': 'Investment Advisor'
+    }
+    return render(request, 'analytics/investment_advisor.html', context)
+
+def country_comparison_page_view(request):
+    """Renders the country comparison page."""
+    context = {
+        'title': 'Country Comparison Tool'
+    }
+    return render(request, 'countries/country_comparison.html', context)
