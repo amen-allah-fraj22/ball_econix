@@ -2,11 +2,25 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from countries.models import Country, EconomicIndicator # Ensure these are the correct model names
+from tunisia.models import RealEstatePrices, TunisiaGovernorate # Import RealEstatePrices and TunisiaGovernorate
+from .models import LaborMarketData # Import LaborMarketData
 from .chart_configs import CHART_CONFIGURATIONS # For potential use in correlation_analysis later
 from django.db.models import Max, F, Q, Avg
 from django.db.models.functions import ExtractYear
-from django.shortcuts import get_object_or_404 # Added import
+from django.shortcuts import get_object_or_404, render # Added import, and render
 import pandas as pd # For potential complex data manipulation, if needed
+
+# New view for testing Chart.js
+def test_chart_view(request):
+    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May']
+    data = [10, 22, 15, 28, 12]
+    context = {
+        'labels': labels,
+        'data': data,
+        'chart_title': 'Sample Bar Chart',
+        'chart_type': 'bar'
+    }
+    return render(request, 'analytics/test_chart.html', context)
 
 @api_view(['GET'])
 def global_dashboard_data(request):
@@ -208,3 +222,95 @@ def correlation_analysis(request):
     except Exception as e:
         print(f"Error in correlation_analysis: {e}")
         return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def real_estate_price_trends_api(request, governorate_id):
+    try:
+        # Ensure governorate exists
+        governorate = get_object_or_404(TunisiaGovernorate, pk=governorate_id)
+
+        prices = RealEstatePrices.objects.filter(governorate=governorate).order_by('year')
+
+        if not prices.exists():
+            return Response({
+                'years': [],
+                'residential_prices': [],
+                'commercial_prices': [],
+                'land_prices': []
+            }, status=status.HTTP_200_OK)
+
+        years = [price.year for price in prices]
+        residential_prices = [price.residential_price_per_m2 for price in prices]
+        commercial_prices = [price.commercial_price_per_m2 for price in prices]
+        land_prices = [price.land_price_per_m2 for price in prices]
+
+        return Response({
+            'governorate_name': governorate.name,
+            'years': years,
+            'residential_prices': residential_prices,
+            'commercial_prices': commercial_prices,
+            'land_prices': land_prices
+        })
+    except TunisiaGovernorate.DoesNotExist:
+        return Response({'error': f"Governorate with id {governorate_id} not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error in real_estate_price_trends_api for governorate {governorate_id}: {e}")
+        return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def tunisia_map_view(request):
+    governorates = TunisiaGovernorate.objects.all().values(
+        'id', 'name', 'latitude', 'longitude', 'population_2024', 'unemployment_rate'
+    )
+    context = {
+        'governorates_data': list(governorates)  # Convert QuerySet to list for JSON serialization
+    }
+    return render(request, 'analytics/tunisia_map.html', context)
+
+@api_view(['GET'])
+def labor_market_trends_api(request, governorate_id):
+    try:
+        governorate = get_object_or_404(TunisiaGovernorate, pk=governorate_id)
+        labor_data = LaborMarketData.objects.filter(governorate=governorate).order_by('year')
+
+        if not labor_data.exists():
+            return Response({
+                'governorate_name': governorate.name, # Return name even if no data
+                'years': [],
+                'unemployment_rate': [],
+                'youth_unemployment': [],
+                'female_unemployment': [],
+                'labor_force_participation': [],
+                'average_wage': [],
+                'job_creation_rate': []
+            }, status=status.HTTP_200_OK)
+
+        years = [data.year for data in labor_data]
+        unemployment_rate = [data.unemployment_rate for data in labor_data]
+        youth_unemployment = [data.youth_unemployment for data in labor_data]
+        female_unemployment = [data.female_unemployment for data in labor_data]
+        labor_force_participation = [data.labor_force_participation for data in labor_data]
+        average_wage = [data.average_wage for data in labor_data]
+        job_creation_rate = [data.job_creation_rate for data in labor_data]
+
+        return Response({
+            'governorate_name': governorate.name,
+            'years': years,
+            'unemployment_rate': unemployment_rate,
+            'youth_unemployment': youth_unemployment,
+            'female_unemployment': female_unemployment,
+            'labor_force_participation': labor_force_participation,
+            'average_wage': average_wage,
+            'job_creation_rate': job_creation_rate
+        })
+    except TunisiaGovernorate.DoesNotExist:
+        return Response({'error': f"Governorate with id {governorate_id} not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error in labor_market_trends_api for governorate {governorate_id}: {e}")
+        return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def world_map_view(request):
+    """Renders the world map page."""
+    context = {
+        'title': 'World Map'
+    }
+    return render(request, 'analytics/world_map.html', context)

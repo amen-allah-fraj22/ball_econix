@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from .models import UserProfile
+from tunisia.models import TunisiaGovernorate # Import TunisiaGovernorate
 import json
 
 User = get_user_model()
@@ -104,7 +105,11 @@ def profile_view(request):
 @login_required
 def dashboard_view(request):
     """Main dashboard"""
-    return render(request, 'dashboard/main.html')
+    governorates = TunisiaGovernorate.objects.all().values('id', 'name', 'latitude', 'longitude', 'population_2024', 'unemployment_rate')
+    context = {
+        'governorates_data': list(governorates)
+    }
+    return render(request, 'dashboard/main.html', context)
 
 def logout_view(request):
     """Logout user"""
