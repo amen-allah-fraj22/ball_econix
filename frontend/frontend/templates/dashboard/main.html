@@ -334,6 +334,58 @@
         // so its JavaScript is self-contained in tunisia_map.html and doesn't need to be called here.
         // The JavaScript in dashboard_tunisia_charts.js will handle the Real Estate and Labor Market charts.
         // It's already set to run on DOMContentLoaded.
+
+        // Function to fetch and populate country dropdowns
+        async function populateCountryDropdowns() {
+            const country1Select = document.getElementById('country1Select');
+            const country2Select = document.getElementById('country2Select');
+
+            if (!country1Select || !country2Select) {
+                console.warn('Country comparison dropdowns not found.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/countries/list-all/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const countries = await response.json();
+
+                // Clear existing options
+                country1Select.innerHTML = '<option value="">Select Country 1</option>';
+                country2Select.innerHTML = '<option value="">Select Country 2</option>';
+
+                countries.forEach(country => {
+                    const option1 = document.createElement('option');
+                    option1.value = country.name;
+                    option1.textContent = country.name;
+                    country1Select.appendChild(option1);
+
+                    const option2 = document.createElement('option');
+                    option2.value = country.name;
+                    option2.textContent = country.name;
+                    country2Select.appendChild(option2);
+                });
+
+                console.log('Country dropdowns populated successfully.');
+            } catch (error) {
+                console.error('Error populating country dropdowns:', error);
+                country1Select.innerHTML = '<option value="">Error loading countries</option>';
+                country2Select.innerHTML = '<option value="">Error loading countries</option>';
+            }
+        }
+
+        // Call the function to populate dropdowns when the Comparison tab is shown
+        document.getElementById('comparison-tab').addEventListener('shown.bs.tab', function (event) {
+            populateCountryDropdowns();
+        });
+
+        // Also populate if the comparison tab is the active one on initial load
+        if (document.getElementById('comparison-tab').classList.contains('active')) {
+            populateCountryDropdowns();
+        }
+
     });
 </script>
 {% endblock %}
