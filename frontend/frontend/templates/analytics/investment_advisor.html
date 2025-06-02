@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Investment Advisor - Tunisia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Investment Advisor for Tunisia</h1>
+    <p class="lead">Find potential investment opportunities based on sector and minimum investment score.</p>
+
+    <form id="investmentAdvisorForm" class="mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="sector" class="form-label">Sector:</label>
+                <select id="sector" name="sector" class="form-select" required>
+                    <option value="" disabled selected>Select a Sector</option>
+                    <option value="Agriculture">Agriculture</option>
+                    <option value="Tourism">Tourism</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Services">Services</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="min_investment_score" class="form-label">Minimum Investment Score (optional):</label>
+                <input type="number" id="min_investment_score" name="min_investment_score" class="form-control" step="0.01" placeholder="e.g., 0.5">
+            </div>
+            <div class="col-md-4 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Find Opportunities</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="results-container">
+        <!-- API results will be displayed here -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('investmentAdvisorForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const sector = document.getElementById('sector').value;
+        const minInvestmentScore = document.getElementById('min_investment_score').value;
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.innerHTML = '<p class="text-center">Loading...</p>'; // Clear previous results and show loading
+
+        let apiUrl = `/api/investment-advisor/?sector=${encodeURIComponent(sector)}`;
+        if (minInvestmentScore) {
+            apiUrl += `&min_investment_score=${encodeURIComponent(minInvestmentScore)}`;
+        }
+
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                resultsContainer.innerHTML = ''; // Clear loading message
+                if (data.length === 0) {
+                    resultsContainer.innerHTML = '<p class="alert alert-info">No investment opportunities found matching your criteria.</p>';
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.className = 'table table-striped table-hover';
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th>Governorate</th>
+                        <th>Population (2024)</th>
+                        <th>Area (km²)</th>
+                        <th>Sector</th>
+                        <th>Overall Score</th>
+                        <th>Labor Score</th>
+                        <th>Infra. Score</th>
+                        <th>Tax Score</th>
+                        <th>Market Access Score</th>
+                        <th>Reasoning</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                data.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.governorate.name}</td>
+                        <td>${item.governorate.population_2024.toLocaleString()}</td>
+                        <td>${item.governorate.area_km2.toLocaleString()}</td>
+                        <td>${item.sector}</td>
+                        <td>${item.overall_score.toFixed(2)}</td>
+                        <td>${item.labor_score.toFixed(2)}</td>
+                        <td>${item.infrastructure_score.toFixed(2)}</td>
+                        <td>${item.tax_incentive_score.toFixed(2)}</td>
+                        <td>${item.market_access_score.toFixed(2)}</td>
+                        <td>${item.reasoning}</td>
+                    `;
+                });
+                table.appendChild(tbody);
+                resultsContainer.appendChild(table);
+            })
+            .catch(error => {
+                resultsContainer.innerHTML = ''; // Clear loading message
+                let errorMessage = '<p class="alert alert-danger">An error occurred while fetching data.';
+                if (error && error.error) {
+                    errorMessage += ` Server said: ${error.error}`;
+                } else if (error && error.message) {
+                    errorMessage += ` Details: ${error.message}`;
+                }
+                errorMessage += '</p>';
+                resultsContainer.innerHTML = errorMessage;
+                console.error('Error fetching investment opportunities:', error);
+            });
+    });
+</script>
+{% endblock %}

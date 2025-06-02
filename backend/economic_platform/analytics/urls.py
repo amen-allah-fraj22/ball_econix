@@ -14,4 +14,6 @@ urlpatterns = [
     path('labor-market-trends/<int:governorate_id>/', views.labor_market_trends_api, name='labor_market_trends_api'),
     path('tunisia-map/', views.tunisia_map_view, name='tunisia_map_view'), # URL for the Tunisia map page
     path('world-map/', views.world_map_view, name='world_map_page'), # URL for the new World Map page
+    path('investment-advisor/', views.investment_advisor_view, name='investment_advisor_page'), # URL for Investment Advisor
+    path('country-comparison/', views.country_comparison_page_view, name='country_comparison_page'), # URL for Country Comparison page
 ]
