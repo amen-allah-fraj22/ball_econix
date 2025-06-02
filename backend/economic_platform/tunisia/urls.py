@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import InvestmentAdvisorAPIView
+from . import views # Import views generally
 
 urlpatterns = [
-    path('api/investment-advisor/', InvestmentAdvisorAPIView.as_view(), name='investment_advisor_api'),
+    path('investment-advisor/', views.InvestmentAdvisorAPIView.as_view(), name='api_investment_advisor'),
+    # Add other Tunisia-specific API endpoints here if any
 ]
