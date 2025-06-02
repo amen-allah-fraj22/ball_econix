@@ -54,3 +54,9 @@ class CountryComparisonDataSerializer(serializers.ModelSerializer):
             representation['latest_indicators'] = None # Or an empty dict, or a specific message
 
         return representation
+
+
+class CountryListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ['name', 'code']

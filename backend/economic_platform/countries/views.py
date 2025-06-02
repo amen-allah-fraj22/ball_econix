@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Prefetch
 from .models import Country, EconomicIndicator
-from .serializers import CountryComparisonDataSerializer
+from .serializers import CountryComparisonDataSerializer, CountryListSerializer
 
 class CountryComparisonAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -54,3 +54,12 @@ class CountryComparisonAPIView(APIView):
             # but returning available data with notes is often more user-friendly.
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class AllCountriesAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        countries = Country.objects.all()
+        if not countries.exists():
+            return Response({"message": "No countries found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CountryListSerializer(countries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

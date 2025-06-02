@@ -6,11 +6,16 @@
 <div class="container mt-4">
     <h1>Country Comparison Tool</h1>
     <p class="lead">Compare economic indicators for multiple countries side-by-side.</p>
-    <p>Enter comma-separated country names below (e.g., Tunisia, France, Germany).</p>
+    <p>Select two countries from the dropdowns below to compare their economic indicators.</p>
 
     <form id="countryComparisonForm" class="mb-4">
         <div class="input-group mb-3">
-            <input type="text" id="country-names-input" class="form-control" placeholder="Enter comma-separated country names" required>
+            <select id="country-select-1" class="form-select me-2">
+                <option value="">Select Country 1</option>
+            </select>
+            <select id="country-select-2" class="form-select">
+                <option value="">Select Country 2</option>
+            </select>
             <button type="submit" class="btn btn-primary">Compare Countries</button>
         </div>
     </form>
@@ -21,20 +26,63 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const countrySelect1 = document.getElementById('country-select-1');
+        const countrySelect2 = document.getElementById('country-select-2');
+        const resultsContainer = document.getElementById('comparison-results-container');
+
+        fetch('/api/countries/list-all/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(countries => {
+                populateDropdown(countrySelect1, countries);
+                populateDropdown(countrySelect2, countries);
+            })
+            .catch(error => {
+                console.error('Error fetching country list:', error);
+                resultsContainer.innerHTML = '<p class="alert alert-danger">Could not load country list. Please try refreshing the page.</p>';
+            });
+
+        function populateDropdown(selectElement, countries) {
+            // Clear existing options except the first one (placeholder)
+            // while (selectElement.options.length > 1) {
+            //    selectElement.remove(1);
+            // }
+            // Simpler way: Keep the first child, remove others if any, then append.
+            const firstOption = selectElement.options[0];
+            selectElement.innerHTML = '';
+            selectElement.appendChild(firstOption);
+
+
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.name; // API for comparison uses name
+                option.textContent = country.name;
+                selectElement.appendChild(option);
+            });
+        }
+    });
+
     document.getElementById('countryComparisonForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const countryNamesInput = document.getElementById('country-names-input').value.trim();
+        const country1Select = document.getElementById('country-select-1').value;
+        const country2Select = document.getElementById('country-select-2').value;
         const resultsContainer = document.getElementById('comparison-results-container');
 
         resultsContainer.innerHTML = '<p class="text-center">Loading...</p>'; // Show loading message
 
-        if (!countryNamesInput) {
-            resultsContainer.innerHTML = '<p class="alert alert-warning">Please enter at least one country name.</p>';
+        if (!country1Select || !country2Select) {
+            resultsContainer.innerHTML = '<p class="alert alert-warning">Please select two countries to compare.</p>';
             return;
         }
 
-        const apiUrl = `/countries/api/compare/?countries=${encodeURIComponent(countryNamesInput)}`;
+        // Construct the API URL with both selected countries
+        const apiUrl = `/countries/api/compare/?countries=${encodeURIComponent(country1Select)},${encodeURIComponent(country2Select)}`;
 
         fetch(apiUrl)
             .then(response => {
