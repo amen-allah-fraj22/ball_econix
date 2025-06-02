@@ -11,7 +11,7 @@
             <div class="card-body text-white">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h1 class="display-6 mb-2">Welcome back, {{ user.first_name }}!</h1>
+                        <h1 class="display-6 mb-2">Welcome back, {{ user.first_name|default:user.username }}!</h1>
                         <p class="lead mb-0">Explore global economic trends and discover investment opportunities in Tunisia</p>
                     </div>
                     <div class="col-md-4 text-end">
@@ -174,7 +174,7 @@
                                         <h5><i class="fas fa-map-marked-alt me-2"></i>Tunisia Investment Map</h5>
                                     </div>
                                     <div class="card-body">
-                                        <div id="tunisiaMap" style="height: 400px;"></div>
+                                        <iframe src="{% url 'analytics_api:tunisia_map_view' %}" style="width: 100%; height: 450px; border: none;"></iframe>
                                     </div>
                                 </div>
                             </div>
@@ -205,36 +205,41 @@
 
                         <!-- Tunisia Stats -->
                         <div class="row mt-4">
-                            <div class="col-md-4">
+                            <div class="col-md-6"> {# Adjusted to col-md-6 for better spacing #}
                                 <div class="card border-0">
                                     <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-users me-2"></i>Labor Market</h6>
+                                        <h6><i class="fas fa-users me-2"></i>Labor Market Trends</h6>
                                     </div>
                                     <div class="card-body">
-                                        <canvas id="laborChart" height="200"></canvas>
+                                        <div class="mb-3">
+                                            <label for="governorateLaborMarketSelect" class="form-label">Select Governorate:</label>
+                                            <select class="form-select form-select-sm" id="governorateLaborMarketSelect">
+                                                {# Options will be populated by dashboard_tunisia_charts.js #}
+                                                <option value="">Loading...</option>
+                                            </select>
+                                        </div>
+                                        <canvas id="laborChart" height="250"></canvas> {# Adjusted height #}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6"> {# Adjusted to col-md-6 for better spacing #}
                                 <div class="card border-0">
                                     <div class="card-header bg-transparent">
                                         <h6><i class="fas fa-home me-2"></i>Real Estate Trends</h6>
                                     </div>
                                     <div class="card-body">
-                                        <canvas id="realEstateChart" height="200"></canvas>
+                                        <div class="mb-3">
+                                            <label for="governorateRealEstateSelect" class="form-label">Select Governorate:</label>
+                                            <select class="form-select form-select-sm" id="governorateRealEstateSelect">
+                                                 {# Options will be populated by dashboard_tunisia_charts.js #}
+                                                <option value="">Loading...</option>
+                                            </select>
+                                        </div>
+                                        <canvas id="realEstateChart" height="250"></canvas> {# Adjusted height #}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-road me-2"></i>Infrastructure Score</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="infrastructureChart" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Removed the third column for infrastructure chart for now to simplify -->
                         </div>
                     </div>
 
@@ -251,17 +256,17 @@
                                             <div class="col-md-4">
                                                 <label class="form-label">Country 1:</label>
                                                 <select class="form-select" id="country1Select">
-                                                    <option value="tunisia">Tunisia</option>
-                                                </select> <!-- Assuming the select was incomplete, closing it -->
+                                                    <!-- Options will be populated dynamically -->
+                                                </select>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Country 2:</label>
                                                 <select class="form-select" id="country2Select">
-                                                    <option value="algeria">Algeria</option> <!-- Example -->
+                                                    <!-- Options will be populated dynamically -->
                                                 </select>
                                             </div>
                                             <div class="col-md-4 d-flex align-items-end">
-                                                <button class="btn btn-primary-custom btn-custom w-100">
+                                                <button class="btn btn-primary-custom btn-custom w-100" id="compareButton">
                                                     <i class="fas fa-exchange-alt me-2"></i>Compare
                                                 </button>
                                             </div>
@@ -282,23 +287,53 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ block.super }}
+<script>
+    // Pass Django context data to JavaScript global scope
+    window.governoratesData = JSON.parse('{{ governorates_data|escapejs|default:"[]" }}');
+</script>
 <script src="{% static 'js/charts.js' %}"></script>
 <script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/dashboard_tunisia_charts.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize EconomicCharts
-        const economicCharts = new EconomicCharts();
-        economicCharts.initWorldMap('worldMap'); // ID of the map container in this file
-        economicCharts.initInflationTrends('inflationChart'); // ID of the inflation chart canvas in this file
-        // The correlation chart (happinessGdpChart) will be initialized if its placeholder init is in charts.js
-        economicCharts.initCorrelationChart('happinessGdpChart'); // ID of the happiness/GDP chart canvas in this file
+        // Initialize EconomicCharts (for global charts)
+        if (typeof EconomicCharts !== 'undefined') {
+            const economicCharts = new EconomicCharts();
+            // Ensure these elements exist before initializing
+            if (document.getElementById('worldMap')) {
+                economicCharts.initWorldMap('worldMap');
+            }
+            if (document.getElementById('inflationChart')) {
+                economicCharts.initInflationTrends('inflationChart');
+            }
+            if (document.getElementById('happinessGdpChart')) {
+                economicCharts.initCorrelationChart('happinessGdpChart');
+            }
+        } else {
+            console.error("EconomicCharts is not defined. Ensure charts.js is loaded correctly.");
+        }
 
         // Initialize CountrySearch
-        // Ensure the IDs 'countrySearch' and 'searchResults' match your HTML in this file
-        const countrySearch = new CountrySearch('countrySearch', 'searchResults');
-        countrySearch.initSearch();
+        if (typeof CountrySearch !== 'undefined') {
+            const countrySearchInput = document.getElementById('countrySearch');
+            const searchResultsDiv = document.getElementById('searchResults');
+            if (countrySearchInput && searchResultsDiv) {
+                const countrySearch = new CountrySearch('countrySearch', 'searchResults');
+                countrySearch.initSearch();
+            } else {
+                // console.warn("Country search elements not found on this page.");
+            }
+        } else {
+            console.error("CountrySearch is not defined. Ensure search.js is loaded correctly.");
+        }
 
-        console.log('Dashboard charts and search initialized.');
+        console.log('Dashboard common scripts initialized. Tunisia specific charts will be handled by dashboard_tunisia_charts.js');
+
+        // The Leaflet map for Tunisia (#tunisiaMap) is now an iframe,
+        // so its JavaScript is self-contained in tunisia_map.html and doesn't need to be called here.
+        // The JavaScript in dashboard_tunisia_charts.js will handle the Real Estate and Labor Market charts.
+        // It's already set to run on DOMContentLoaded.
     });
 </script>
 {% endblock %}

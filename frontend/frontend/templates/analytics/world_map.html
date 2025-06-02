@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title|default:"World Map" }} - Economic Intelligence Platform{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    #worldMapDisplay { /* Unique ID for this map instance */
+        height: 600px; /* Or any desired height */
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-globe-americas me-2"></i>{{ title|default:"World Map" }}</h5>
+                </div>
+                <div class="card-body">
+                    <div id="worldMapDisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize the world map
+    const map = L.map('worldMapDisplay').setView([20, 0], 2); // Center of the world, zoom level 2
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    // Optional: Add a marker for Tunisia
+    const tunisiaLatLng = [34.0, 9.0]; // Approximate coordinates for Tunisia
+    L.marker(tunisiaLatLng).addTo(map)
+        .bindPopup('Tunisia')
+        .openPopup();
+
+    // You can add more markers or layers here as needed
+});
+</script>
+{% endblock %}

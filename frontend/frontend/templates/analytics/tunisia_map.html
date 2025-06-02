@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tunisia Governorates Map{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    #tunisiaMapContainer { /* Changed ID to avoid conflict if 'tunisiaMap' is used elsewhere */
+        height: 600px;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-map-marked-alt me-2"></i>Tunisia Governorates Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div id="tunisiaMapContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Center of Tunisia and appropriate zoom level
+    const map = L.map('tunisiaMapContainer').setView([34.0, 9.0], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const governoratesData = JSON.parse('{{ governorates_data|escapejs }}');
+
+    if (governoratesData && governoratesData.length > 0) {
+        governoratesData.forEach(function(gov) {
+            if (gov.latitude && gov.longitude) {
+                let popupContent = `<b>${gov.name}</b><br>`;
+                if (gov.population_2024) {
+                    popupContent += `Population (2024): ${gov.population_2024.toLocaleString()}<br>`;
+                }
+                if (gov.unemployment_rate) {
+                    popupContent += `Unemployment Rate: ${gov.unemployment_rate}%`;
+                }
+
+                L.marker([gov.latitude, gov.longitude]).addTo(map)
+                    .bindPopup(popupContent);
+            } else {
+                console.warn(`Governorate ${gov.name} is missing latitude or longitude.`);
+            }
+        });
+    } else {
+        console.log("No governorate data to display on the map.");
+    }
+});
+</script>
+{% endblock %}
