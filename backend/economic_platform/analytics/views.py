@@ -258,13 +258,18 @@ def real_estate_price_trends_api(request, governorate_id):
         return Response({'error': 'An unexpected error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def tunisia_map_view(request):
-    governorates = TunisiaGovernorate.objects.all().values(
-        'id', 'name', 'latitude', 'longitude', 'population_2024', 'unemployment_rate'
-    )
-    context = {
-        'governorates_data': list(governorates)  # Convert QuerySet to list for JSON serialization
-    }
-    return render(request, 'analytics/tunisia_map.html', context)
+    try:
+        governorates = TunisiaGovernorate.objects.all().values(
+            'id', 'name', 'latitude', 'longitude', 'population_2024', 'unemployment_rate'
+        )
+        context = {
+            'governorates_data': list(governorates)  # Convert QuerySet to list for JSON serialization
+        }
+        return render(request, 'analytics/tunisia_map.html', context)
+    except Exception as e:
+        print(f"Error in tunisia_map_view: {e}")
+        # You might want to render an error page or return an empty context
+        return render(request, 'analytics/tunisia_map.html', {'error_message': f'Failed to load Tunisia map data: {e}'}) # Or handle this more gracefully
 
 @api_view(['GET'])
 def labor_market_trends_api(request, governorate_id):

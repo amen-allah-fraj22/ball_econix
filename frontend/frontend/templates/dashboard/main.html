@@ -289,13 +289,6 @@
 {% block extra_js %}
 {{ block.super }}
 <script>
-    // Pass Django context data to JavaScript global scope
-    window.governoratesData = JSON.parse('{{ governorates_data|escapejs|default:"[]" }}');
-</script>
-<script src="{% static 'js/charts.js' %}"></script>
-<script src="{% static 'js/search.js' %}"></script>
-<script src="{% static 'js/dashboard_tunisia_charts.js' %}"></script>
-<script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize EconomicCharts (for global charts)
         if (typeof EconomicCharts !== 'undefined') {
@@ -336,4 +329,7 @@
         // It's already set to run on DOMContentLoaded.
     });
 </script>
+<script src="{% static 'js/charts.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/dashboard_tunisia_charts.js' %}"></script>
 {% endblock %}
