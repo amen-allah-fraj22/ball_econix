@@ -8,11 +8,11 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="card card-custom bg-gradient" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);">
-            <div class="card-body text-white">
+            <div class="card-body text-light">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h1 class="display-6 mb-2">Welcome back, {{ user.first_name|default:user.username }}!</h1>
-                        <p class="lead mb-0">Explore global economic trends and discover investment opportunities in Tunisia</p>
+                        <h1 class="display-6 mb-2" style="color: var(--secondary-color);">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+                        <p class="lead mb-0" style="color: var(--secondary-color);">Explore global economic trends and discover investment opportunities in Tunisia</p>
                     </div>
                     <div class="col-md-4 text-end">
                         <i class="fas fa-globe-americas fa-5x opacity-50"></i>
@@ -77,11 +77,6 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="tunisia-tab" data-bs-toggle="tab" data-bs-target="#tunisia" type="button" role="tab">
                             <i class="fas fa-map-marker-alt me-2"></i>Tunisia Focus
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison" type="button" role="tab">
-                            <i class="fas fa-balance-scale me-2"></i>Compare Countries
                         </button>
                     </li>
                 </ul>
@@ -214,11 +209,14 @@
                                         <div class="mb-3">
                                             <label for="governorateLaborMarketSelect" class="form-label">Select Governorate:</label>
                                             <select class="form-select form-select-sm" id="governorateLaborMarketSelect">
-                                                {# Options will be populated by dashboard_tunisia_charts.js #}
-                                                <option value="">Loading...</option>
+                                                {% for governorate in governorates %}
+                                                    <option value="{{ governorate.id }}">{{ governorate.name }}</option>
+                                                {% endfor %}
                                             </select>
                                         </div>
-                                        <canvas id="laborChart" height="250"></canvas> {# Adjusted height #}
+                                        <div class="chart-container-fixed-height">
+                                            <canvas id="laborChart" height="250"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -235,48 +233,13 @@
                                                 <option value="">Loading...</option>
                                             </select>
                                         </div>
-                                        <canvas id="realEstateChart" height="250"></canvas> {# Adjusted height #}
+                                        <div class="chart-container-fixed-height">
+                                            <canvas id="realEstateChart" height="250"></canvas> {# Adjusted height #}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <!-- Removed the third column for infrastructure chart for now to simplify -->
-                        </div>
-                    </div>
-
-                    <!-- Country Comparison Tab -->
-                    <div class="tab-pane fade" id="comparison" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h5><i class="fas fa-balance-scale me-2"></i>Country Comparison Tool</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row mb-3">
-                                            <div class="col-md-4">
-                                                <label class="form-label">Country 1:</label>
-                                                <select class="form-select" id="country1Select">
-                                                    <!-- Options will be populated dynamically -->
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Country 2:</label>
-                                                <select class="form-select" id="country2Select">
-                                                    <!-- Options will be populated dynamically -->
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 d-flex align-items-end">
-                                                <button class="btn btn-primary-custom btn-custom w-100" id="compareButton">
-                                                    <i class="fas fa-exchange-alt me-2"></i>Compare
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div id="comparisonResult">
-                                            <!-- Comparison charts and tables will appear here -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -288,6 +251,12 @@
 
 {% block extra_js %}
 {{ block.super }}
+<script>
+    // Pass governorates data to JavaScript
+    window.governoratesData = JSON.parse('{{ governorates_data_json|escapejs|default:"[]" }}');
+</script>
+<script src="{% static 'js/charts.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize EconomicCharts (for global charts)
@@ -329,7 +298,6 @@
         // It's already set to run on DOMContentLoaded.
     });
 </script>
-<script src="{% static 'js/charts.js' %}"></script>
-<script src="{% static 'js/search.js' %}"></script>
 <script src="{% static 'js/dashboard_tunisia_charts.js' %}"></script>
+<script src="{% static 'js/general.js' %}"></script>
 {% endblock %}

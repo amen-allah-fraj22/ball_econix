@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Investment Recommendations{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-lightbulb me-2"></i>Investment Recommendations for {{ sector|title }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if recommendations %}
+                        <div class="list-group">
+                            {% for rec in recommendations %}
+                                <div class="list-group-item list-group-item-action mb-3 rounded shadow-sm">
+                                    <h5 class="mb-1 text-primary">{{ rec.governorate_name }} <span class="badge bg-secondary">Score: {{ rec.overall_score|floatformat:1 }}</span></h5>
+                                    <p class="mb-1">{{ rec.reasoning }}</p>
+                                    <small class="text-muted">Latitude: {{ rec.latitude|default:'N/A' }}, Longitude: {{ rec.longitude|default:'N/A' }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="alert alert-info">{{ message|default:'No specific recommendations found for this sector at the moment. Please try a different sector or check back later.' }}</p>
+                    {% endif %}
+                    <a href="{% url 'auth:dashboard' %}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

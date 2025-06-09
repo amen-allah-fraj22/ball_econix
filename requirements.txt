@@ -1,0 +1,43 @@
+# Django and Core Web Framework
+Django==4.2.7
+django-cors-headers==4.2.0
+djangorestframework==3.14.0
+
+# Data Processing and Analysis
+pandas==2.1.2
+numpy==1.26.1
+scikit-learn==1.3.2
+matplotlib==3.8.1
+seaborn==0.13.0
+
+# Additional Python Libraries
+pillow==10.1.0
+python-dotenv==1.0.0
+
+# Database Connectors (Optional)
+psycopg2-binary==2.9.9  # For PostgreSQL
+# sqlite3 is included in Python standard library
+
+# Development and Debugging
+ipython==8.17.2
+django-debug-toolbar==4.2.0
+
+# Testing
+pytest==7.4.3
+pytest-django==4.7.0
+
+# Deployment and Production
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Frontend Dependencies (optional, for static file management)
+bootstrap5==1.3.1
+
+# Security
+django-axes==6.1.1
+
+# Internationalization
+Babel==2.13.1
+
+# Extras
+humanize==4.9.0 

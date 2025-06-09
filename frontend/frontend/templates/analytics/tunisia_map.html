@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    const governoratesData = JSON.parse('{{ governorates_data|escapejs }}');
+    const governoratesData = JSON.parse('{{ governorates_data_json|escapejs|default:"[]" }}');
 
     if (governoratesData && governoratesData.length > 0) {
         governoratesData.forEach(function(gov) {

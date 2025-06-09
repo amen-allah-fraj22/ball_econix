@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Compare Tunisian Governorates{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>Compare Tunisian Governorates
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <form action="{% url 'frontend:country_comparison_results' %}" method="GET">
+                        <div class="mb-3">
+                            <label class="form-label">Select Governorates to Compare (2-4 max)</label>
+                            <div class="row">
+                                {% for governorate in governorates %}
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input governorate-checkbox" 
+                                               type="checkbox" 
+                                               name="governorates" 
+                                               value="{{ governorate.id }}" 
+                                               id="governorate_{{ governorate.id }}">
+                                        <label class="form-check-label" for="governorate_{{ governorate.id }}">
+                                            {{ governorate.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary" id="compareButton" disabled>
+                                <i class="fas fa-chart-bar me-2"></i>Compare Governorates
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.governorate-checkbox');
+    const compareButton = document.getElementById('compareButton');
+
+    function updateCompareButton() {
+        const selectedCount = document.querySelectorAll('.governorate-checkbox:checked').length;
+        compareButton.disabled = selectedCount < 2 || selectedCount > 4;
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateCompareButton);
+    });
+});
+</script>
+{% endblock %} 

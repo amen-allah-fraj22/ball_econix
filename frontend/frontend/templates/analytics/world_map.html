@@ -36,21 +36,59 @@
 {{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize the world map
-    const map = L.map('worldMapDisplay').setView([20, 0], 2); // Center of the world, zoom level 2
+    const map = L.map('worldMapDisplay').setView([20, 0], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18,
     }).addTo(map);
 
-    // Optional: Add a marker for Tunisia
-    const tunisiaLatLng = [34.0, 9.0]; // Approximate coordinates for Tunisia
-    L.marker(tunisiaLatLng).addTo(map)
-        .bindPopup('Tunisia')
-        .openPopup();
+    // Fetch data from your Django API
+    fetch('/api/analytics/world-map-data/')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Map data received:', data);
+            if (data.error) {
+                console.error('Error fetching map data:', data.error);
+                alert('Error loading map data: ' + data.error);
+                return;
+            }
+            if (data.length === 0) {
+                console.warn('No data available to display on the map.');
+                // You might want to display a message on the map itself
+                const noDataMessage = L.control({ position: 'topright' });
+                noDataMessage.onAdd = function (map) {
+                    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                    this._div.innerHTML = '<h4>No data available</h4><p>Please import data or check your filters.</p>';
+                    this._div.style.backgroundColor = 'white';
+                    this._div.style.padding = '10px';
+                    this._div.style.borderRadius = '5px';
+                    return this._div;
+                };
+                noDataMessage.addTo(map);
+                return;
+            }
 
-    // You can add more markers or layers here as needed
+            data.forEach(countryData => {
+                if (countryData.latitude && countryData.longitude) {
+                    const latLng = [countryData.latitude, countryData.longitude];
+                    const popupContent = `
+                        <b>${countryData.name}</b><br/>
+                        Happiness Score: ${countryData.happiness_score ? countryData.happiness_score.toFixed(2) : 'N/A'}<br/>
+                        Inflation Rate: ${countryData.inflation_rate ? countryData.inflation_rate.toFixed(2) : 'N/A'}%
+                    `;
+                    L.marker(latLng)
+                        .addTo(map)
+                        .bindPopup(popupContent);
+                } else {
+                    console.warn(`Skipping ${countryData.name} due to missing latitude or longitude.`);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error during fetch operation:', error);
+            alert('Network or server error loading map data.');
+        });
 });
 </script>
 {% endblock %}

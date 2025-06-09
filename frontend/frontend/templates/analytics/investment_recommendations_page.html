@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Investment Recommendations for {{ sector_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Investment Recommendations for {{ sector_name|capfirst }} Sector</h1>
+    
+    {% if error_message %}
+        <div class="alert alert-danger text-center" role="alert">
+            {{ error_message }}
+        </div>
+    {% elif recommendations %}
+        <div class="row">
+            {% for rec in recommendations %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-primary">{{ rec.governorate.name }}</h5>
+                        <p class="card-text mb-1"><strong>Ranking Score:</strong> {{ rec.ranking_score|default:"N/A" }}/100</p>
+                        <p class="card-text mb-1"><strong>Population (2024):</strong> {{ rec.governorate.population_2024|intcomma }}</p>
+                        <p class="card-text mb-1"><strong>Unemployment Rate:</strong> {{ rec.governorate.unemployment_rate }}%</p>
+                        <p class="card-text flex-grow-1">{{ rec.recommendation_details.geographic_advantages|truncatechars:100 }}</p>
+                        <button class="btn btn-sm btn-outline-primary mt-auto view-details-btn" data-rec-id="{{ forloop.counter0 }}">View Details</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal fade" id="recommendationDetailsModal" tabindex="-1" aria-labelledby="recommendationDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="recommendationDetailsModalLabel">Investment Recommendation Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBodyContent">
+                        <!-- Detailed content will be loaded here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <p class="text-center">No recommendations found for the {{ sector_name }} sector.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const recommendationsData = JSON.parse(document.getElementById('recommendations-data').textContent);
+    const recommendationDetailsModal = new bootstrap.Modal(document.getElementById('recommendationDetailsModal'));
+    const modalBodyContent = document.getElementById('modalBodyContent');
+
+    function displayRecommendationDetails(rec) {
+        modalBodyContent.innerHTML = `
+            <h4>${rec.governorate.name} - ${rec.recommendation_details.sector_name} Sector</h4>
+            <hr>
+            <h5>Ranking & Overview</h5>
+            <p><strong>Ranking Score:</strong> ${rec.ranking_score || 'N/A'}/100</p>
+            <p><strong>Description:</strong> ${rec.recommendation_details.description || 'No description provided.'}</p>
+            <hr>
+            
+            <h5>Actionable Next Steps</h5>
+            <h6>Contact Information:</h6>
+            <p>${rec.contact_info_investment_offices || 'Not available.'}</p>
+            <h6>Relevant Government Agencies:</h6>
+            <p>${rec.relevant_government_agencies || 'Not available.'}</p>
+            <h6>Required Permits & Procedures:</h6>
+            <p>${rec.required_permits_procedures || 'Not available.'}</p>
+            <h6>Timeline for Setup:</h6>
+            <p>${rec.timeline_for_setup || 'Not available.'}</p>
+            <h6>Investment Size Recommendations:</h6>
+            <p>${rec.investment_size_recommendations || 'Not available.'}</p>
+            <hr>
+            
+            <h5>Comprehensive Data Display</h5>
+            <h6>Labor Force Statistics:</h6>
+            ${rec.labor_market_data ? `
+                <ul>
+                    <li><strong>Year:</strong> ${rec.labor_market_data.year}</li>
+                    <li><strong>Unemployment Rate:</strong> ${rec.labor_market_data.unemployment_rate}%</li>
+                    <li><strong>Youth Unemployment:</strong> ${rec.labor_market_data.youth_unemployment}%</li>
+                    <li><strong>Female Unemployment:</strong> ${rec.labor_market_data.female_unemployment}%</li>
+                    <li><strong>Labor Force Participation:</strong> ${rec.labor_market_data.labor_force_participation}%</li>
+                    <li><strong>Average Wage:</strong> ${rec.labor_market_data.average_wage ? rec.labor_market_data.average_wage.toLocaleString('en-US', { style: 'currency', currency: 'TND' }) : 'N/A'}</li>
+                    <li><strong>Job Creation Rate:</strong> ${rec.labor_market_data.job_creation_rate}%</li>
+                </ul>
+            ` : '<p>No labor market data available.</p>'}
+
+            <h6>Infrastructure Details:</h6>
+            <p>${rec.infrastructure_details || 'Not available.'}</p>
+            
+            <h6>Economic Incentives:</h6>
+            <p>${rec.economic_incentives || 'Not available.'}</p>
+            
+            <h6>Geographic Advantages:</h6>
+            <p>${rec.geographic_advantages || 'Not available.'}</p>
+
+            <h6>Cost Analysis:</h6>
+            ${rec.real_estate_data ? `
+                <ul>
+                    <li><strong>Residential Price/m²:</strong> ${rec.real_estate_data.residential_price_per_m2 ? rec.real_estate_data.residential_price_per_m2.toLocaleString('en-US', { style: 'currency', currency: 'TND' }) : 'N/A'}</li>
+                    <li><strong>Commercial Price/m²:</strong> ${rec.real_estate_data.commercial_price_per_m2 ? rec.real_estate_data.commercial_price_per_m2.toLocaleString('en-US', { style: 'currency', currency: 'TND' }) : 'N/A'}</li>
+                    <li><strong>Land Price/m²:</strong> ${rec.real_estate_data.land_price_per_m2 ? rec.real_estate_data.land_price_per_m2.toLocaleString('en-US', { style: 'currency', currency: 'TND' }) : 'N/A'}</li>
+                </ul>
+            ` : '<p>No real estate data available.</p>'}
+            <p>${rec.cost_analysis_summary || 'No additional cost analysis summary.'}</p>
+
+            <h6>Success Stories:</h6>
+            <p>${rec.success_stories || 'No success stories provided.'}</p>
+        `;
+        recommendationDetailsModal.show();
+    }
+
+    document.querySelectorAll('.view-details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const recId = parseInt(this.dataset.recId);
+            const recData = recommendationsData[recId];
+            displayRecommendationDetails(recData);
+        });
+    });
+</script>
+{% endblock %} 

@@ -14,19 +14,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# backend/economic_platform/urls.py
+# backend/economic_platform/economic_platform/urls.py
 
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+# from authentication import views as authentication_views # Removed this import as authentication.urls will handle all auth paths
+from django.views.generic.base import RedirectView # Import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('authentication.urls')),
     path('api/analytics/', include('analytics.urls', namespace='analytics_api')),
-    path('api/countries/', include('countries.urls')),
-    path('', include('authentication.urls')),  # For frontend templates
+    path('countries/', include('countries.urls')),
+
+    # Include authentication urls under a distinct path for all auth-related views (template and API)
+    path('auth/', include('authentication.urls', namespace='auth')),
+    path('api/governorates/', include('governorates.urls')),
+
+    # Add frontend URLs
+    path('', include('frontend.urls')),
+
+    # Redirect root to login page
+    path('', RedirectView.as_view(url='/auth/login/', permanent=False)),
 ]
 
 # Serve static files during development

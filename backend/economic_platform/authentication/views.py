@@ -24,15 +24,14 @@ def login_view(request):
         password = request.POST.get('password')
         
         try:
-            user = User.objects.get(email=email)
-            user = authenticate(request, username=user.username, password=password)
+            user = authenticate(request, email=email, password=password)
             if user:
                 login(request, user)
-                return redirect('dashboard')
+                return redirect('auth:dashboard')
             else:
                 messages.error(request, 'Invalid credentials')
-        except User.DoesNotExist:
-            messages.error(request, 'User does not exist')
+        except Exception:
+            messages.error(request, 'User does not exist or invalid credentials')
     
     return render(request, 'auth/login.html')
 
@@ -72,7 +71,7 @@ def register_view(request):
             UserProfile.objects.create(user=user)
             
             messages.success(request, 'Registration successful! Please login.')
-            return redirect('login')
+            return redirect('auth:login')
         except Exception as e:
             messages.error(request, f'Registration failed: {str(e)}')
     
@@ -98,7 +97,7 @@ def profile_view(request):
         profile.save()
         
         messages.success(request, 'Profile updated successfully!')
-        return redirect('profile')
+        return redirect('auth:profile')
     
     return render(request, 'auth/profile.html', {'profile': profile})
 
@@ -107,15 +106,16 @@ def dashboard_view(request):
     """Main dashboard"""
     governorates = TunisiaGovernorate.objects.all().values('id', 'name', 'latitude', 'longitude', 'population_2024', 'unemployment_rate')
     context = {
-        'governorates_data': list(governorates)
+        'governorates_data_json': json.dumps(list(governorates))
     }
+    print(f"DEBUG: governorates_data_json: {context['governorates_data_json']}") # Temporary debug print
     return render(request, 'dashboard/main.html', context)
 
 def logout_view(request):
     """Logout user"""
     logout(request)
     messages.success(request, 'Logged out successfully!')
-    return redirect('login')
+    return redirect('auth:login')
 
 # API Views for AJAX requests
 @api_view(['POST'])
@@ -126,8 +126,7 @@ def api_login(request):
     password = request.data.get('password')
     
     try:
-        user = User.objects.get(email=email)
-        user = authenticate(request, username=user.username, password=password)
+        user = authenticate(request, email=email, password=password)
         if user:
             login(request, user)
             return Response({
@@ -146,10 +145,10 @@ def api_login(request):
                 'success': False,
                 'message': 'Invalid credentials'
             }, status=status.HTTP_401_UNAUTHORIZED)
-    except User.DoesNotExist:
+    except Exception:
         return Response({
             'success': False,
-            'message': 'User does not exist'
+            'message': 'User does not exist or invalid credentials'
         }, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Economic Intelligence Platform{% endblock %}</title>
+    <title>{% block title %}Econix{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -112,8 +112,8 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">
-                <i class="fas fa-chart-line me-2"></i>EcoIntel
+            <a class="navbar-brand" href="{% url 'auth:dashboard' %}">
+                <i class="fas fa-chart-line me-2"></i>Econix
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -124,23 +124,28 @@
                 <ul class="navbar-nav me-auto">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
+                        <a class="nav-link" href="{% url 'auth:dashboard' %}">
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#global-analysis">
-                            <i class="fas fa-globe me-1"></i>Global Analysis
+                            <i class="fas fa-globe me-1"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#tunisia-focus">
-                            <i class="fas fa-map-marker-alt me-1"></i>Tunisia Focus
+                            <i class="fas fa-map-marker-alt me-1"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'analytics_api:world_map_page' %}">
                             <i class="fas fa-globe-americas me-1"></i>World Map
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'frontend:country_comparison_select' %}">
+                            <i class="fas fa-balance-scale me-2"></i>Governorate Comparison
                         </a>
                     </li>
                     {% endif %}
@@ -159,23 +164,23 @@
                             <i class="fas fa-user me-1"></i>{{ user.first_name|default:user.username }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">
+                            <li><a class="dropdown-item" href="{% url 'auth:profile' %}">
                                 <i class="fas fa-user-edit me-2"></i>Profile
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">
+                            <li><a class="dropdown-item" href="{% url 'auth:logout' %}">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
                             </a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">
+                        <a class="nav-link" href="{% url 'auth:login' %}">
                             <i class="fas fa-sign-in-alt me-1"></i>Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">
+                        <a class="nav-link" href="{% url 'auth:register' %}">
                             <i class="fas fa-user-plus me-1"></i>Register
                         </a>
                     </li>
@@ -210,7 +215,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Economic Intelligence Platform. Built with Django & Chart.js</p>
+            <p>&copy; 2025 Economic Intelligence Platform. Built with ecoforce</p>
         </div>
     </footer>
 

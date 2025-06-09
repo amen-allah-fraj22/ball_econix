@@ -21,7 +21,9 @@
 /* General chart canvas styling */
 canvas {
     max-width: 100%; /* Ensure canvas is responsive within its container */
-    height: auto;    /* Maintain aspect ratio by default */
+    /* height: auto;    Maintain aspect ratio by default (removed to avoid conflict) */
+    display: block; /* Ensure it behaves as a block-level element */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 /*
@@ -29,13 +31,20 @@ canvas {
    These IDs correspond to canvas elements in dashboard/main.html and countries/detail.html.
 */
 #inflationChart,
-#happinessGdpChart, /* Also used for PCA Bar Chart in dashboard */
+#happinessGdpChart { /* Also used for PCA Bar Chart in dashboard */
+    min-height: 300px;   /* Minimum height to ensure visibility */
+    max-height: 350px;   /* Max height for dashboard/detail view consistency */
+    height: 300px;       /* Fixed height */
+    width: 100% !important; /* Ensure it takes full width of its parent container */
+}
+
 #laborChart,
 #realEstateChart,
 #infrastructureChart,
 #happinessOverTimeChart { /* From country_detail.html */
-    min-height: 280px;   /* Minimum height to ensure visibility */
+    min-height: 250px;   /* Minimum height to ensure visibility */
     max-height: 350px;   /* Max height for dashboard/detail view consistency */
+    height: 250px;       /* Fixed height */
     width: 100% !important; /* Ensure it takes full width of its parent container */
 }
 
@@ -124,4 +133,9 @@ canvas {
     margin-bottom: 15px;
     color: var(--chart-text-primary, #1e293b);
     text-align: center;
+}
+
+.chart-container-fixed-height {
+    height: 250px; /* Enforce a fixed height for the chart container */
+    position: relative; /* Needed for Chart.js to work correctly with responsive charts inside */
 }

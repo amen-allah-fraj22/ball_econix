@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'rest_framework',
     'corsheaders',
     # Your apps
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
     'analytics',
     'countries',
     'tunisia',
-    
+    'governorates',
 ]
 
 MIDDLEWARE = [
@@ -55,14 +56,18 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+X_FRAME_OPTIONS = 'ALLOWALL'
+
 ROOT_URLCONF = 'economic_platform.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR.parent.parent / 'frontend' / 'frontend' / 'templates'],
+        'DIRS': [BASE_DIR.parent.parent / 'frontend' / 'frontend' / 'templates',
+                 BASE_DIR / 'countries' / 'templates',
+                ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -153,4 +158,27 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+}
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'frontend': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }

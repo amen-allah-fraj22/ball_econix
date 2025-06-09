@@ -40,6 +40,8 @@ class EconomicCharts {
         mapContainer.innerHTML = ''; // Clear previous content if any
 
         const data = await this.fetchData('/api/analytics/global-dashboard-data/');
+        console.log('DEBUG: World Map - Fetched data:', data);
+
         if (!data || data.length === 0) {
             mapContainer.innerHTML = '<p>No data available to display on the map.</p>';
             console.warn('No data for world map.');
@@ -59,6 +61,7 @@ class EconomicCharts {
         data.forEach(country => {
             if (country.lat != null && country.lng != null) {
                 const color = this.getHappinessColor(country.happiness);
+                console.log(`DEBUG: Country: ${country.country}, Happiness: ${country.happiness}, Lat: ${country.lat}, Lng: ${country.lng}, Color: ${color}`);
                 const circle = L.circleMarker([country.lat, country.lng], {
                     radius: 8,
                     fillColor: color,

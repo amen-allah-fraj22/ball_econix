@@ -56,7 +56,7 @@ class CountrySearch {
             li.innerHTML = `
                 <div>
                     ${flagPlaceholder}
-                    <strong>${country.name}</strong> (${country.code})
+                    <strong>${country.name}</strong> ${country.code && country.code.trim() ? `(${country.code.trim()})` : '(N/A)'}
                     <small class="d-block text-muted">${country.continent || ''}${country.region ? ' - ' + country.region : ''}</small>
                 </div>
                 <span class="badge bg-primary rounded-pill">

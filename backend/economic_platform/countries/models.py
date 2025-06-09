@@ -6,7 +6,7 @@ User = get_user_model()
 class Country(models.Model):
     """Country basic information"""
     name = models.CharField(max_length=100, unique=True)
-    code = models.CharField(max_length=3, unique=True)
+    code = models.CharField(max_length=3, unique=False, null=True, blank=True)
     continent = models.CharField(max_length=50)
     region = models.CharField(max_length=100, blank=True)
     latitude = models.FloatField(null=True, blank=True)
