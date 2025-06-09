@@ -1,283 +1,373 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard - Economic Intelligence Platform{% endblock %}
+{% block title %}Dashboard - Ball Econix{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
 
 {% block content %}
-<!-- Welcome Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card card-custom bg-gradient" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);">
-            <div class="card-body text-white">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1 class="display-6 mb-2">Welcome back, {{ user.first_name|default:user.username }}!</h1>
-                        <p class="lead mb-0">Explore global economic trends and discover investment opportunities in Tunisia</p>
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Economic Intelligence Dashboard</h1>
+        <p class="dashboard-subtitle">
+            Welcome back, {{ user.first_name|default:user.username }}! 
+            Explore global economic trends and discover investment opportunities in Tunisia.
+        </p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="stats-grid">
+        <div class="stat-card" data-animate="fade-up">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-globe-americas"></i>
+                </div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +2.3%
+                </div>
+            </div>
+            <div class="stat-value" data-counter="195" data-duration="2000">0</div>
+            <div class="stat-label">Countries Analyzed</div>
+        </div>
+
+        <div class="stat-card" data-animate="fade-up" style="animation-delay: 0.1s">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-trend negative">
+                    <i class="fas fa-arrow-down"></i>
+                    -0.8%
+                </div>
+            </div>
+            <div class="stat-value" data-counter="3.2" data-type="percentage" data-decimals="1">0</div>
+            <div class="stat-label">Global Avg Inflation</div>
+        </div>
+
+        <div class="stat-card" data-animate="fade-up" style="animation-delay: 0.2s">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-smile"></i>
+                </div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +1.2%
+                </div>
+            </div>
+            <div class="stat-value" data-counter="5.4" data-decimals="1">0</div>
+            <div class="stat-label">Global Happiness Score</div>
+        </div>
+
+        <div class="stat-card" data-animate="fade-up" style="animation-delay: 0.3s">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-minus"></i>
+                    0%
+                </div>
+            </div>
+            <div class="stat-value" data-counter="24">0</div>
+            <div class="stat-label">Tunisia Governorates</div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Tabs -->
+    <div class="tab-container">
+        <div class="tab-nav">
+            <button class="tab-button active" data-target="#global-analysis">
+                <i class="fas fa-globe me-2"></i>Global Analysis
+            </button>
+            <button class="tab-button" data-target="#tunisia-focus">
+                <i class="fas fa-map-marker-alt me-2"></i>Tunisia Focus
+            </button>
+            <button class="tab-button" data-target="#comparison-tools">
+                <i class="fas fa-balance-scale me-2"></i>Comparison Tools
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Global Analysis Tab -->
+            <div class="tab-pane active" id="global-analysis">
+                <div class="grid grid-cols-2" style="gap: var(--spacing-lg);">
+                    <!-- World Map -->
+                    <div class="map-wrapper" style="grid-column: 1 / -1;">
+                        <div class="map-header">
+                            <h3 class="map-title">
+                                <i class="fas fa-globe-americas"></i>
+                                Global Happiness & Economic Indicators
+                            </h3>
+                            <div class="map-controls">
+                                <button class="chart-control-btn" data-action="refresh" data-tooltip="Refresh Data">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="chart-control-btn" data-action="fullscreen" data-tooltip="Fullscreen">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="map-container">
+                            <div id="worldMap"></div>
+                        </div>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <i class="fas fa-globe-americas fa-5x opacity-50"></i>
+
+                    <!-- Global Charts -->
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h3 class="chart-title">
+                                <i class="chart-title-icon fas fa-chart-line"></i>
+                                Global Inflation Trends
+                            </h3>
+                            <div class="chart-controls">
+                                <button class="chart-control-btn active" data-period="1y">1Y</button>
+                                <button class="chart-control-btn" data-period="5y">5Y</button>
+                                <button class="chart-control-btn" data-period="all">All</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="inflationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h3 class="chart-title">
+                                <i class="chart-title-icon fas fa-chart-scatter"></i>
+                                Economic Correlation Analysis
+                            </h3>
+                            <div class="chart-controls">
+                                <button class="chart-control-btn active" data-analysis="pca">PCA</button>
+                                <button class="chart-control-btn" data-analysis="correlation">Correlation</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="happinessGdpChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Countries Section -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-trophy"></i>
+                            Top Performing Countries
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-3">
+                            <div class="metric-card">
+                                <div class="metric-icon">🇫🇮</div>
+                                <div class="metric-value">7.84</div>
+                                <div class="metric-label">Finland</div>
+                                <div class="metric-change positive">+0.12</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">🇩🇰</div>
+                                <div class="metric-value">7.62</div>
+                                <div class="metric-label">Denmark</div>
+                                <div class="metric-change positive">+0.08</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">🇮🇸</div>
+                                <div class="metric-value">7.50</div>
+                                <div class="metric-label">Iceland</div>
+                                <div class="metric-change negative">-0.03</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tunisia Focus Tab -->
+            <div class="tab-pane" id="tunisia-focus">
+                <div class="grid grid-cols-2" style="gap: var(--spacing-lg);">
+                    <!-- Tunisia Map -->
+                    <div class="map-wrapper" style="grid-column: 1 / -1;">
+                        <div class="map-header">
+                            <h3 class="map-title">
+                                <i class="fas fa-map-marked-alt"></i>
+                                Tunisia Investment Opportunities Map
+                            </h3>
+                            <div class="map-controls">
+                                <select class="form-select" id="tunisia-map-filter">
+                                    <option value="all">All Sectors</option>
+                                    <option value="agriculture">Agriculture</option>
+                                    <option value="tourism">Tourism</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                    <option value="technology">Technology</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="map-container">
+                            <iframe src="{% url 'analytics_api:tunisia_map_view' %}" 
+                                    style="width: 100%; height: 100%; border: none; border-radius: var(--radius-md);">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- Investment Advisor -->
+                    <div class="advisor-container">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-lightbulb"></i>
+                                AI Investment Advisor
+                            </h3>
+                        </div>
+                        <div class="advisor-form">
+                            <div class="advisor-form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Investment Sector</label>
+                                    <select class="form-select" id="sectorSelect">
+                                        <option value="agriculture">Agriculture</option>
+                                        <option value="tourism">Tourism</option>
+                                        <option value="manufacturing">Manufacturing</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="services">Services</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="getInvestmentRecommendation()">
+                                    <i class="fas fa-magic"></i>
+                                    Get Recommendation
+                                </button>
+                            </div>
+                        </div>
+                        <div class="advisor-results" id="recommendationResult">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-lightbulb fa-2x mb-3"></i>
+                                <p>Select a sector and click "Get Recommendation" to receive AI-powered investment insights.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tunisia Economic Charts -->
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h3 class="chart-title">
+                                <i class="chart-title-icon fas fa-users"></i>
+                                Labor Market Trends
+                            </h3>
+                            <div class="chart-controls">
+                                <select class="form-select form-select-sm" id="governorateLaborMarketSelect">
+                                    <option value="">Loading governorates...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="laborChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h3 class="chart-title">
+                                <i class="chart-title-icon fas fa-home"></i>
+                                Real Estate Price Trends
+                            </h3>
+                            <div class="chart-controls">
+                                <select class="form-select form-select-sm" id="governorateRealEstateSelect">
+                                    <option value="">Loading governorates...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="realEstateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Tools Tab -->
+            <div class="tab-pane" id="comparison-tools">
+                <div class="comparison-container">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-balance-scale"></i>
+                            Country Comparison Tool
+                        </h3>
+                        <p class="card-subtitle">Compare economic indicators across multiple countries</p>
+                    </div>
+                    
+                    <div class="comparison-form">
+                        <div class="comparison-form-row">
+                            <div class="form-group">
+                                <label class="form-label">Country 1</label>
+                                <select class="form-select" id="country1Select">
+                                    <option value="">Select first country...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Country 2</label>
+                                <select class="form-select" id="country2Select">
+                                    <option value="">Select second country...</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" id="compareButton">
+                                <i class="fas fa-exchange-alt"></i>
+                                Compare Countries
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-results" id="comparisonResult">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-balance-scale fa-2x mb-3"></i>
+                            <p>Select two countries to compare their economic indicators side by side.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Quick Stats -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card card-custom text-center">
-            <div class="card-body">
-                <i class="fas fa-flag fa-2x text-primary mb-2"></i>
-                <h4 class="card-title" id="total-countries">195</h4>
-                <p class="card-text text-muted">Countries Analyzed</p>
+    <!-- Recent Activity -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-clock"></i>
+                Recent Market Updates
+            </h3>
+            <div class="card-actions">
+                <button class="btn btn-outline btn-sm refresh-btn" data-refresh-target="recent-activity">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
             </div>
         </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card card-custom text-center">
-            <div class="card-body">
-                <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
-                <h4 class="card-title" id="avg-inflation">3.2%</h4>
-                <p class="card-text text-muted">Global Avg Inflation</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card card-custom text-center">
-            <div class="card-body">
-                <i class="fas fa-smile fa-2x text-warning mb-2"></i>
-                <h4 class="card-title" id="avg-happiness">5.4</h4>
-                <p class="card-text text-muted">Global Happiness Score</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card card-custom text-center">
-            <div class="card-body">
-                <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
-                <h4 class="card-title">24</h4>
-                <p class="card-text text-muted">Tunisia Governorates</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Main Content Tabs -->
-<div class="row">
-    <div class="col-12">
-        <div class="card card-custom">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="mainTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="global-tab" data-bs-toggle="tab" data-bs-target="#global" type="button" role="tab">
-                            <i class="fas fa-globe me-2"></i>Global Analysis
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="tunisia-tab" data-bs-toggle="tab" data-bs-target="#tunisia" type="button" role="tab">
-                            <i class="fas fa-map-marker-alt me-2"></i>Tunisia Focus
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison" type="button" role="tab">
-                            <i class="fas fa-balance-scale me-2"></i>Compare Countries
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content" id="mainTabsContent">
-                    <!-- Global Analysis Tab -->
-                    <div class="tab-pane fade show active" id="global" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <!-- World Map -->
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h5><i class="fas fa-map me-2"></i>Global Happiness & Inflation Map</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="worldMap" style="height: 400px;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Country Search -->
-                                <div class="card border-0 mb-3">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-search me-2"></i>Search Countries</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <input type="text" class="form-control mb-3" id="countrySearch" placeholder="Type country name...">
-                                        <div id="searchResults"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Top Countries -->
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-trophy me-2"></i>Happiest Countries</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="topCountries">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span>🇫🇮 Finland</span>
-                                                <span class="badge bg-success">7.84</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span>🇩🇰 Denmark</span>
-                                                <span class="badge bg-success">7.62</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span>🇮🇸 Iceland</span>
-                                                <span class="badge bg-success">7.50</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Global Charts -->
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-chart-line me-2"></i>Global Inflation Trends</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="inflationChart" height="300"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-smile me-2"></i>Happiness vs GDP</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="happinessGdpChart" height="300"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div class="card-body">
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-arrow-up text-success"></i>
                     </div>
-
-                    <!-- Tunisia Focus Tab -->
-                    <div class="tab-pane fade" id="tunisia" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <!-- Tunisia Map -->
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h5><i class="fas fa-map-marked-alt me-2"></i>Tunisia Investment Map</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <iframe src="{% url 'analytics_api:tunisia_map_view' %}" style="width: 100%; height: 450px; border: none;"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Investment Advisor -->
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-lightbulb me-2"></i>Investment Advisor</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Select Sector:</label>
-                                            <select class="form-select" id="sectorSelect">
-                                                <option value="agriculture">Agriculture</option>
-                                                <option value="tourism">Tourism</option>
-                                                <option value="manufacturing">Manufacturing</option>
-                                                <option value="technology">Technology</option>
-                                            </select>
-                                        </div>
-                                        <button class="btn btn-primary-custom btn-custom w-100" onclick="getInvestmentRecommendation()">
-                                            <i class="fas fa-magic me-2"></i>Get Recommendation
-                                        </button>
-                                        <div id="recommendationResult" class="mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tunisia Stats -->
-                        <div class="row mt-4">
-                            <div class="col-md-6"> {# Adjusted to col-md-6 for better spacing #}
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-users me-2"></i>Labor Market Trends</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="governorateLaborMarketSelect" class="form-label">Select Governorate:</label>
-                                            <select class="form-select form-select-sm" id="governorateLaborMarketSelect">
-                                                {# Options will be populated by dashboard_tunisia_charts.js #}
-                                                <option value="">Loading...</option>
-                                            </select>
-                                        </div>
-                                        <canvas id="laborChart" height="250"></canvas> {# Adjusted height #}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6"> {# Adjusted to col-md-6 for better spacing #}
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h6><i class="fas fa-home me-2"></i>Real Estate Trends</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="governorateRealEstateSelect" class="form-label">Select Governorate:</label>
-                                            <select class="form-select form-select-sm" id="governorateRealEstateSelect">
-                                                 {# Options will be populated by dashboard_tunisia_charts.js #}
-                                                <option value="">Loading...</option>
-                                            </select>
-                                        </div>
-                                        <canvas id="realEstateChart" height="250"></canvas> {# Adjusted height #}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Removed the third column for infrastructure chart for now to simplify -->
-                        </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Tunisia GDP Growth</div>
+                        <div class="activity-description">GDP growth rate increased by 2.3% in Q4 2024</div>
+                        <div class="activity-time">2 hours ago</div>
                     </div>
-
-                    <!-- Country Comparison Tab -->
-                    <div class="tab-pane fade" id="comparison" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card border-0">
-                                    <div class="card-header bg-transparent">
-                                        <h5><i class="fas fa-balance-scale me-2"></i>Country Comparison Tool</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row mb-3">
-                                            <div class="col-md-4">
-                                                <label class="form-label">Country 1:</label>
-                                                <select class="form-select" id="country1Select">
-                                                    <!-- Options will be populated dynamically -->
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Country 2:</label>
-                                                <select class="form-select" id="country2Select">
-                                                    <!-- Options will be populated dynamically -->
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 d-flex align-items-end">
-                                                <button class="btn btn-primary-custom btn-custom w-100" id="compareButton">
-                                                    <i class="fas fa-exchange-alt me-2"></i>Compare
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div id="comparisonResult">
-                                            <!-- Comparison charts and tables will appear here -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-chart-line text-info"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Global Inflation Update</div>
+                        <div class="activity-description">Average global inflation decreased to 3.1%</div>
+                        <div class="activity-time">4 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-building text-warning"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Real Estate Market</div>
+                        <div class="activity-description">Tunis property prices up 5.2% year-over-year</div>
+                        <div class="activity-time">6 hours ago</div>
                     </div>
                 </div>
             </div>
@@ -289,18 +379,21 @@
 {% block extra_js %}
 {{ block.super }}
 <script>
-    // Pass Django context data to JavaScript global scope
+    // Pass Django context data to JavaScript
     window.governoratesData = JSON.parse('{{ governorates_data|escapejs|default:"[]" }}');
 </script>
 <script src="{% static 'js/charts.js' %}"></script>
 <script src="{% static 'js/search.js' %}"></script>
 <script src="{% static 'js/dashboard_tunisia_charts.js' %}"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize EconomicCharts (for global charts)
-        if (typeof EconomicCharts !== 'undefined') {
-            const economicCharts = new EconomicCharts();
-            // Ensure these elements exist before initializing
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Economic Charts
+    if (typeof EconomicCharts !== 'undefined') {
+        const economicCharts = new EconomicCharts();
+        
+        // Initialize charts with error handling
+        try {
             if (document.getElementById('worldMap')) {
                 economicCharts.initWorldMap('worldMap');
             }
@@ -310,82 +403,448 @@
             if (document.getElementById('happinessGdpChart')) {
                 economicCharts.initCorrelationChart('happinessGdpChart');
             }
-        } else {
-            console.error("EconomicCharts is not defined. Ensure charts.js is loaded correctly.");
+        } catch (error) {
+            console.error('Error initializing charts:', error);
         }
+    }
 
-        // Initialize CountrySearch
-        if (typeof CountrySearch !== 'undefined') {
-            const countrySearchInput = document.getElementById('countrySearch');
-            const searchResultsDiv = document.getElementById('searchResults');
-            if (countrySearchInput && searchResultsDiv) {
-                const countrySearch = new CountrySearch('countrySearch', 'searchResults');
-                countrySearch.initSearch();
-            } else {
-                // console.warn("Country search elements not found on this page.");
+    // Initialize Country Search
+    if (typeof CountrySearch !== 'undefined') {
+        const searchInput = document.getElementById('global-search');
+        const searchResults = document.getElementById('global-search-results');
+        
+        if (searchInput && searchResults) {
+            const countrySearch = new CountrySearch('global-search', 'global-search-results');
+            countrySearch.initSearch();
+        }
+    }
+
+    // Enhanced tab switching with chart resize
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.dataset.target;
+            const targetPane = document.querySelector(targetId);
+            
+            if (!targetPane) return;
+            
+            // Update active states
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            this.classList.add('active');
+            targetPane.classList.add('active');
+            
+            // Trigger chart resize after tab animation
+            setTimeout(() => {
+                const charts = targetPane.querySelectorAll('canvas');
+                charts.forEach(canvas => {
+                    const chartInstance = Chart.getChart(canvas);
+                    if (chartInstance) {
+                        chartInstance.resize();
+                    }
+                });
+            }, 300);
+        });
+    });
+
+    // Country comparison functionality
+    async function populateCountryDropdowns() {
+        const country1Select = document.getElementById('country1Select');
+        const country2Select = document.getElementById('country2Select');
+        
+        if (!country1Select || !country2Select) return;
+        
+        try {
+            const response = await fetch('/api/countries/list-all/');
+            if (!response.ok) throw new Error('Failed to fetch countries');
+            
+            const countries = await response.json();
+            
+            // Clear and populate dropdowns
+            [country1Select, country2Select].forEach(select => {
+                select.innerHTML = '<option value="">Select a country...</option>';
+                countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.name;
+                    option.textContent = `${country.name} (${country.code})`;
+                    select.appendChild(option);
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error loading countries:', error);
+            [country1Select, country2Select].forEach(select => {
+                select.innerHTML = '<option value="">Error loading countries</option>';
+            });
+        }
+    }
+
+    // Load countries when comparison tab is shown
+    document.querySelector('[data-target="#comparison-tools"]').addEventListener('click', function() {
+        setTimeout(populateCountryDropdowns, 100);
+    });
+
+    // Country comparison handler
+    document.getElementById('compareButton')?.addEventListener('click', async function() {
+        const country1 = document.getElementById('country1Select').value;
+        const country2 = document.getElementById('country2Select').value;
+        const resultContainer = document.getElementById('comparisonResult');
+        
+        if (!country1 || !country2) {
+            resultContainer.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Please select both countries to compare.
+                </div>
+            `;
+            return;
+        }
+        
+        if (country1 === country2) {
+            resultContainer.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Please select different countries to compare.
+                </div>
+            `;
+            return;
+        }
+        
+        // Show loading state
+        this.classList.add('loading');
+        this.disabled = true;
+        resultContainer.innerHTML = `
+            <div class="text-center">
+                <div class="loading-spinner loading-spinner-lg"></div>
+                <p class="mt-3">Comparing countries...</p>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch(`/api/countries/compare/?countries=${encodeURIComponent(country1)},${encodeURIComponent(country2)}`);
+            
+            if (!response.ok) {
+                throw new Error('Comparison failed');
             }
-        } else {
-            console.error("CountrySearch is not defined. Ensure search.js is loaded correctly.");
+            
+            const data = await response.json();
+            displayComparisonResults(data, resultContainer);
+            
+        } catch (error) {
+            console.error('Comparison error:', error);
+            resultContainer.innerHTML = `
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Failed to compare countries. Please try again.
+                </div>
+            `;
+        } finally {
+            this.classList.remove('loading');
+            this.disabled = false;
         }
+    });
 
-        console.log('Dashboard common scripts initialized. Tunisia specific charts will be handled by dashboard_tunisia_charts.js');
+    function displayComparisonResults(data, container) {
+        if (!data.comparison_data || data.comparison_data.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No comparison data available for the selected countries.
+                </div>
+            `;
+            return;
+        }
+        
+        const countries = data.comparison_data;
+        const indicators = [
+            { key: 'happiness_score', label: 'Happiness Score', format: 'decimal' },
+            { key: 'gdp_per_capita', label: 'GDP per Capita', format: 'currency' },
+            { key: 'headline_consumer_price_inflation', label: 'Inflation Rate', format: 'percentage' },
+            { key: 'social_support', label: 'Social Support', format: 'decimal' },
+            { key: 'healthy_life_expectancy_at_birth', label: 'Life Expectancy', format: 'decimal' },
+            { key: 'freedom_to_make_life_choices', label: 'Freedom Index', format: 'decimal' }
+        ];
+        
+        let tableHTML = `
+            <div class="comparison-table-container">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Indicator</th>
+                            ${countries.map(country => `<th>${country.name}<br><small>${country.continent}</small></th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        indicators.forEach(indicator => {
+            tableHTML += `<tr>`;
+            tableHTML += `<td><strong>${indicator.label}</strong></td>`;
+            
+            countries.forEach(country => {
+                const value = country.latest_indicators?.[indicator.key];
+                let formattedValue = 'N/A';
+                
+                if (value !== null && value !== undefined) {
+                    switch (indicator.format) {
+                        case 'currency':
+                            formattedValue = new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD'
+                            }).format(value);
+                            break;
+                        case 'percentage':
+                            formattedValue = value.toFixed(1) + '%';
+                            break;
+                        case 'decimal':
+                            formattedValue = value.toFixed(2);
+                            break;
+                        default:
+                            formattedValue = value.toString();
+                    }
+                }
+                
+                tableHTML += `<td>${formattedValue}</td>`;
+            });
+            
+            tableHTML += `</tr>`;
+        });
+        
+        tableHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        if (data.notes && data.notes.length > 0) {
+            tableHTML = `
+                <div class="alert alert-info mb-4">
+                    <strong>Notes:</strong>
+                    <ul class="mb-0 mt-2">
+                        ${data.notes.map(note => `<li>${note}</li>`).join('')}
+                    </ul>
+                </div>
+            ` + tableHTML;
+        }
+        
+        container.innerHTML = tableHTML;
+    }
 
-        // The Leaflet map for Tunisia (#tunisiaMap) is now an iframe,
-        // so its JavaScript is self-contained in tunisia_map.html and doesn't need to be called here.
-        // The JavaScript in dashboard_tunisia_charts.js will handle the Real Estate and Labor Market charts.
-        // It's already set to run on DOMContentLoaded.
-
-        // Function to fetch and populate country dropdowns
-        async function populateCountryDropdowns() {
-            const country1Select = document.getElementById('country1Select');
-            const country2Select = document.getElementById('country2Select');
-
-            if (!country1Select || !country2Select) {
-                console.warn('Country comparison dropdowns not found.');
+    // Investment recommendation function (global scope for onclick)
+    window.getInvestmentRecommendation = async function() {
+        const sectorSelect = document.getElementById('sectorSelect');
+        const resultContainer = document.getElementById('recommendationResult');
+        
+        if (!sectorSelect || !resultContainer) return;
+        
+        const sector = sectorSelect.value;
+        
+        // Show loading state
+        resultContainer.innerHTML = `
+            <div class="text-center">
+                <div class="loading-spinner loading-spinner-lg"></div>
+                <p class="mt-3">Analyzing investment opportunities...</p>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch(`/api/tunisia/investment-advisor/?sector=${encodeURIComponent(sector)}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to get recommendations');
+            }
+            
+            const recommendations = await response.json();
+            
+            if (recommendations.length === 0) {
+                resultContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        No specific recommendations found for ${sector}. Consider exploring other sectors.
+                    </div>
+                `;
                 return;
             }
-
-            try {
-                const response = await fetch('/api/countries/list-all/');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const countries = await response.json();
-
-                // Clear existing options
-                country1Select.innerHTML = '<option value="">Select Country 1</option>';
-                country2Select.innerHTML = '<option value="">Select Country 2</option>';
-
-                countries.forEach(country => {
-                    const option1 = document.createElement('option');
-                    option1.value = country.name;
-                    option1.textContent = country.name;
-                    country1Select.appendChild(option1);
-
-                    const option2 = document.createElement('option');
-                    option2.value = country.name;
-                    option2.textContent = country.name;
-                    country2Select.appendChild(option2);
-                });
-
-                console.log('Country dropdowns populated successfully.');
-            } catch (error) {
-                console.error('Error populating country dropdowns:', error);
-                country1Select.innerHTML = '<option value="">Error loading countries</option>';
-                country2Select.innerHTML = '<option value="">Error loading countries</option>';
-            }
+            
+            let resultsHTML = '';
+            recommendations.forEach(rec => {
+                resultsHTML += `
+                    <div class="advisor-result-item">
+                        <div class="advisor-result-header">
+                            <div class="advisor-result-name">${rec.governorate.name}</div>
+                            <div class="advisor-result-score">${rec.overall_score.toFixed(2)}</div>
+                        </div>
+                        <div class="advisor-result-details">
+                            <div class="advisor-detail-item">
+                                <div class="advisor-detail-label">Labor</div>
+                                <div class="advisor-detail-value">${rec.labor_score.toFixed(2)}</div>
+                            </div>
+                            <div class="advisor-detail-item">
+                                <div class="advisor-detail-label">Infrastructure</div>
+                                <div class="advisor-detail-value">${rec.infrastructure_score.toFixed(2)}</div>
+                            </div>
+                            <div class="advisor-detail-item">
+                                <div class="advisor-detail-label">Tax Incentives</div>
+                                <div class="advisor-detail-value">${rec.tax_incentive_score.toFixed(2)}</div>
+                            </div>
+                            <div class="advisor-detail-item">
+                                <div class="advisor-detail-label">Market Access</div>
+                                <div class="advisor-detail-value">${rec.market_access_score.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="advisor-result-reasoning">${rec.reasoning || 'No specific reasoning provided.'}</div>
+                    </div>
+                `;
+            });
+            
+            resultContainer.innerHTML = resultsHTML;
+            
+        } catch (error) {
+            console.error('Investment recommendation error:', error);
+            resultContainer.innerHTML = `
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Failed to get investment recommendations. Please try again.
+                </div>
+            `;
         }
+    };
 
-        // Call the function to populate dropdowns when the Comparison tab is shown
-        document.getElementById('comparison-tab').addEventListener('shown.bs.tab', function (event) {
-            populateCountryDropdowns();
-        });
-
-        // Also populate if the comparison tab is the active one on initial load
-        if (document.getElementById('comparison-tab').classList.contains('active')) {
-            populateCountryDropdowns();
-        }
-
-    });
+    console.log('Dashboard initialized successfully');
+});
 </script>
+
+<!-- Additional CSS for activity list and enhanced components -->
+<style>
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+    }
+
+    .activity-item:hover {
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--surface-light);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .activity-description {
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .activity-time {
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+    }
+
+    .text-success { color: #10b981 !important; }
+    .text-info { color: var(--accent-color) !important; }
+    .text-warning { color: #f59e0b !important; }
+
+    /* Enhanced loading states */
+    .btn.loading {
+        position: relative;
+        color: transparent !important;
+    }
+
+    .btn.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        color: inherit;
+    }
+
+    /* Dropdown enhancements */
+    .dropdown.active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all var(--transition-fast);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md) var(--spacing-lg);
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all var(--transition-fast);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+        background: var(--surface-light);
+        color: var(--text-primary);
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: var(--border-color);
+        margin: var(--spacing-xs) 0;
+    }
+</style>
 {% endblock %}
